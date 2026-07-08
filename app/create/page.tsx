@@ -11,6 +11,7 @@ import {
   getSavedLast4,
   getSavedRequesterInfo,
   getToken,
+  saveLastRequestId,
   saveRequesterInfo,
   setCareModeDefault,
 } from "@/lib/identity";
@@ -164,6 +165,7 @@ export default function CreatePage() {
         truncationEnabled: careMode,
         participants: names.map((name, i) => ({ name, baseAmount: amounts[i] })),
       });
+      saveLastRequestId(request.id); // GNB [정산 현황] 노출 기준
       router.push(`/share/${request.id}`);
     } catch {
       setSubmitting(false);

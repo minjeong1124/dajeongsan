@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Gnb } from "@/components/gnb";
 import { ToastProvider } from "@/components/toast";
 
 export const metadata: Metadata = {
@@ -24,7 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-[#F8F1E1] text-[#4A3728] antialiased">
         <ToastProvider>
-          <main className="mx-auto min-h-screen w-full max-w-md px-5 pb-16 pt-10">
+          <Gnb />
+          <main className="mx-auto min-h-screen w-full max-w-md px-5 pb-16 pt-8">
             {children}
           </main>
         </ToastProvider>

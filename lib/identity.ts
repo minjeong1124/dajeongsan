@@ -6,6 +6,7 @@ const TOKEN_KEY = "dj_token";
 const LAST4_KEY = "dj_last4";
 const CARE_MODE_KEY = "dj_care_mode";
 const REQUESTER_INFO_KEY = "dj_requester_info";
+const LAST_REQUEST_KEY = "dj_last_request_id";
 
 function safeGet(key: string): string | null {
   try {
@@ -71,6 +72,15 @@ export function getSavedRequesterInfo(): RequesterInfo | null {
 
 export function saveRequesterInfo(info: RequesterInfo) {
   safeSet(REQUESTER_INFO_KEY, JSON.stringify(info));
+}
+
+/** 내가 만든 마지막 정산 요청 ID — GNB의 [정산 현황] 조건부 노출에 사용 */
+export function getLastRequestId(): string | null {
+  return safeGet(LAST_REQUEST_KEY);
+}
+
+export function saveLastRequestId(id: string) {
+  safeSet(LAST_REQUEST_KEY, id);
 }
 
 /** 절삭 토글 전역 설정 — 기본 on, 사용자가 변경한 값은 계속 유지 */

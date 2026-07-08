@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useToast } from "@/components/toast";
-import { getToken } from "@/lib/identity";
+import { getToken, saveLastRequestId } from "@/lib/identity";
 import { formatWon } from "@/lib/money";
 import { careGiven, getRequest } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase";
@@ -31,6 +31,8 @@ export default function DashboardPage() {
       .then((req) => {
         setRequest(req);
         setStatus(req ? "ready" : "notfound");
+        // 내가 만든 정산이면 GNB [정산 현황]이 이 대시보드를 가리키도록 갱신
+        if (req && req.requesterToken === getToken()) saveLastRequestId(req.id);
       })
       .catch(() => setStatus("notfound"));
     careGiven(getToken())
