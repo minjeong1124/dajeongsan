@@ -5,6 +5,7 @@
 const TOKEN_KEY = "dj_token";
 const LAST4_KEY = "dj_last4";
 const CARE_MODE_KEY = "dj_care_mode";
+const REQUESTER_INFO_KEY = "dj_requester_info";
 
 function safeGet(key: string): string | null {
   try {
@@ -44,6 +45,32 @@ export function getSavedLast4(): string | null {
 
 export function saveLast4(last4: string) {
   safeSet(LAST4_KEY, last4);
+}
+
+export interface RequesterInfo {
+  name: string;
+  bankCode: string | null;
+  account: string;
+}
+
+/** 정산 요청 생성 시 저장된 내 정보 — 재접속 시 생성 화면의 디폴트 값으로 사용 */
+export function getSavedRequesterInfo(): RequesterInfo | null {
+  const raw = safeGet(REQUESTER_INFO_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return {
+      name: typeof parsed.name === "string" ? parsed.name : "",
+      bankCode: typeof parsed.bankCode === "string" ? parsed.bankCode : null,
+      account: typeof parsed.account === "string" ? parsed.account : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function saveRequesterInfo(info: RequesterInfo) {
+  safeSet(REQUESTER_INFO_KEY, JSON.stringify(info));
 }
 
 /** 절삭 토글 전역 설정 — 기본 on, 사용자가 변경한 값은 계속 유지 */

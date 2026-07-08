@@ -9,7 +9,9 @@ import { getBank } from "@/lib/banks";
 import {
   getCareModeDefault,
   getSavedLast4,
+  getSavedRequesterInfo,
   getToken,
+  saveRequesterInfo,
   setCareModeDefault,
 } from "@/lib/identity";
 import { formatWon, splitEqually } from "@/lib/money";
@@ -69,9 +71,15 @@ export default function CreatePage() {
   const [submitting, setSubmitting] = useState(false);
   const participantsSectionRef = useRef<HTMLElement>(null);
 
-  // 전역 토글 설정 + 재사용자 배려 배너 데이터 로드
+  // 전역 토글 설정 + 저장된 내 정보(디폴트 값) + 재사용자 배려 배너 데이터 로드
   useEffect(() => {
     setCareMode(getCareModeDefault());
+    const saved = getSavedRequesterInfo();
+    if (saved) {
+      setRequesterName(saved.name);
+      setBankCode(saved.bankCode);
+      setAccount(saved.account);
+    }
     const token = getToken();
     careReceived(token, getSavedLast4())
       .then(setReceivedCare)
@@ -140,6 +148,12 @@ export default function CreatePage() {
           (p) => parseInt(p.amount.replace(/[^\d]/g, ""), 10) || 0
         );
       }
+      // 내 정보 저장 — 재접속 시 생성 화면에 디폴트 값으로 노출
+      saveRequesterInfo({
+        name: requesterName.trim(),
+        bankCode,
+        account: account.trim(),
+      });
       const request = await createRequest({
         requesterName: requesterName.trim(),
         requesterBankCode: bankCode ?? "",
