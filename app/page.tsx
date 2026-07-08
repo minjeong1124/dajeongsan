@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BankLogo } from "@/components/bank-logo";
+import { BankSelectSheet } from "@/components/bank-select-sheet";
 import { CalculatorSheet } from "@/components/calculator-sheet";
+import { getBank } from "@/lib/banks";
 import {
   getCareModeDefault,
   getSavedLast4,
@@ -25,7 +28,9 @@ export default function CreatePage() {
   const router = useRouter();
 
   const [requesterName, setRequesterName] = useState("");
+  const [bankCode, setBankCode] = useState<string | null>(null);
   const [account, setAccount] = useState("");
+  const [showBankSheet, setShowBankSheet] = useState(false);
   const [total, setTotal] = useState("");
   const [splitMode, setSplitMode] = useState<SplitMode>("equal");
   const [participants, setParticipants] = useState<ParticipantDraft[]>([
@@ -54,7 +59,8 @@ export default function CreatePage() {
     namedParticipants.every((p) => (parseInt(p.amount.replace(/[^\d]/g, ""), 10) || 0) > 0);
 
   const amountReady = splitMode === "equal" ? totalValue > 0 : customAmountsValid;
-  const infoReady = requesterName.trim().length > 0 && account.trim().length > 0;
+  const infoReady =
+    requesterName.trim().length > 0 && bankCode !== null && account.trim().length > 0;
   const canSubmit = amountReady && namedParticipants.length > 0 && infoReady && !submitting;
 
   // CTA 비활성화 안내 문구 (screen-specifications.md 3-1)
@@ -63,7 +69,7 @@ export default function CreatePage() {
     : namedParticipants.length === 0
       ? "함께 정산할 사람을 1명 이상 추가해주세요"
       : !infoReady
-        ? "내 이름과 입금받을 계좌를 입력해주세요"
+        ? "내 이름과 입금받을 은행·계좌번호를 입력해주세요"
         : null;
 
   const formatInput = (raw: string) => {
@@ -95,6 +101,7 @@ export default function CreatePage() {
       }
       const request = await createRequest({
         requesterName: requesterName.trim(),
+        requesterBankCode: bankCode ?? "",
         requesterAccount: account.trim(),
         requesterToken: getToken(),
         splitMode,
@@ -155,13 +162,43 @@ export default function CreatePage() {
           placeholder="내 이름을 입력해주세요"
           className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
         />
-        <input
-          type="text"
-          value={account}
-          onChange={(e) => setAccount(e.target.value)}
-          placeholder="입금받을 계좌 (예: 카카오뱅크 3333-01-1234567)"
-          className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-        />
+        {/* 은행 선택란 + 계좌번호 입력란 — 분리된 2개 필드, DB에는 은행 코드로 저장 */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowBankSheet(true)}
+            className={`flex h-12 w-[42%] shrink-0 items-center gap-2 rounded-xl border px-3 text-sm transition-all active:scale-95 ${
+              bankCode
+                ? "border-stone-200 bg-white font-semibold text-stone-800"
+                : "border-stone-200 bg-white text-stone-400"
+            }`}
+          >
+            {(() => {
+              const bank = getBank(bankCode);
+              return bank ? (
+                <>
+                  <BankLogo bank={bank} size={24} />
+                  <span className="truncate">{bank.name}</span>
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs">
+                    🏦
+                  </span>
+                  은행 선택
+                </>
+              );
+            })()}
+          </button>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={account}
+            onChange={(e) => setAccount(e.target.value.replace(/[^\d-]/g, ""))}
+            placeholder="계좌번호를 입력해주세요"
+            className="tnum h-12 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+          />
+        </div>
       </section>
 
       {/* 총액 + 분배 방식 */}
@@ -199,15 +236,29 @@ export default function CreatePage() {
         </p>
 
         {splitMode === "equal" && (
-          <input
-            type="text"
-            inputMode="numeric"
-            value={total}
-            onChange={(e) => setTotal(formatInput(e.target.value))}
-            onClick={() => setShowCalculator(true)}
-            placeholder="총 결제 금액을 입력해주세요"
-            className="tnum h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-          />
+          <>
+            {/* 계산기 버튼 상시 노출 — 별도 계산기 앱 없이 인앱 계산이 가능함을 인지시킴 */}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={total}
+                onChange={(e) => setTotal(formatInput(e.target.value))}
+                placeholder="총 결제 금액을 입력해주세요"
+                className="tnum h-12 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCalculator(true)}
+                className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl bg-rose-50 px-4 text-sm font-semibold text-rose-600 transition-all hover:bg-rose-100 active:scale-95"
+              >
+                🧮 계산기
+              </button>
+            </div>
+            <p className="text-xs text-stone-400">
+              금액이 복잡하면 계산기로 바로 계산해서 입력할 수 있어요
+            </p>
+          </>
         )}
       </section>
 
@@ -336,6 +387,14 @@ export default function CreatePage() {
           )}
         </button>
       </div>
+
+      {showBankSheet && (
+        <BankSelectSheet
+          selectedCode={bankCode}
+          onSelect={setBankCode}
+          onClose={() => setShowBankSheet(false)}
+        />
+      )}
 
       {showCalculator && (
         <CalculatorSheet

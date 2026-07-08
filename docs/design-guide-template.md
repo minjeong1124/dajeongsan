@@ -31,10 +31,11 @@
     - 비활성화 상태(총액 미입력·참여자 0명): `bg-stone-200 text-stone-400 cursor-not-allowed` + 버튼 위에 명세의 안내 문구("정산할 금액을 입력하면 요청을 만들 수 있어요" 등)를 `text-xs text-stone-400`으로 노출.
     - 보조 버튼([링크 복사], [다시 공유], [건너뛰기]): 아웃라인 스타일 `border border-stone-200 bg-white text-stone-700 rounded-xl`.
     - [카카오톡으로 보내기]: 카카오 브랜드 옐로우(`#FEE500`, `bg-[#FEE500] text-stone-900`)만 예외적으로 허용.
-- **절삭 토글(빠른 정산 배려 모드)**: 스위치 OFF `bg-stone-300` → ON `bg-rose-500` 전환. ON 시 미리보기 문구("예) 26,437원 → 26,000원만 보내주세요 :)")가 fade-in으로 등장.
+- **절삭 토글(빠른 정산 배려 모드)**: 기본 ON. 스위치 OFF `bg-stone-300` → ON `bg-rose-500` 전환. ON 시 미리보기 문구("예) 26,437원 → 26,000원만 보내주세요 :)")가 fade-in으로 등장.
+- **은행 선택란**: 계좌번호 입력란과 분리된 필드. 미선택 시 "은행 선택" placeholder, 선택 후 `로고 + 은행명` 표시. 클릭 시 바텀시트(`rounded-t-2xl bg-white shadow-xl`)에 은행 목록을 그리드로 노출 — 각 항목은 로고 + 은행명, 최소 44px 터치 영역. 로고 이미지는 외부 URL 대신 인라인 SVG/이니셜 원형 아이콘(은행 브랜드 컬러 배경)으로 구현해 깨진 리소스를 방지.
 - **상태 뱃지(대시보드)**: [확인함] `bg-emerald-100 text-emerald-700 rounded-full px-2.5 py-0.5 text-xs font-medium` / [미확인] `bg-stone-100 text-stone-500` 동일 형태.
 - **토스트**: 하단 고정(`fixed bottom-6 inset-x-4`), `bg-stone-900 text-white rounded-xl px-4 py-3 text-sm`, fade-in-up 등장 후 2초 뒤 자동 소멸. 계좌 복사·링크 복사·공유 실패 폴백 안내에 공통 사용.
-- **인라인 계산기(총액 입력 필드 클릭 시)**: 바텀시트 형태(`rounded-t-2xl bg-white shadow-xl`), 키패드 버튼은 최소 44px 확보.
+- **인앱 계산기**: 총액 입력 필드 옆에 계산기 버튼(🧮 아이콘 + "계산기" 라벨, `bg-rose-50 text-rose-600 rounded-xl`)을 **상시 노출**해 필드 클릭 전에도 계산 기능의 존재를 인지시킨다. 버튼 클릭 시 바텀시트 형태(`rounded-t-2xl bg-white shadow-xl`)로 열리며, 키패드 버튼은 최소 44px 확보. 계산 결과는 총액 필드에 자동 입력.
 - **핵심 애니메이션**:
     - 절삭 적용 결과 화면(3-3): 원래 금액이 먼저 보인 뒤 취소선이 그어지고 확정 금액이 카운트 애니메이션으로 내려가는 연출 — 배려받는 순간을 서비스의 하이라이트로 만들 것.
     - 화면 진입 시 카드들이 순차 fade-in-up (`opacity-0 translate-y-2` → 표시, 각 80ms 딜레이).

@@ -46,6 +46,7 @@ function localCreate(input: CreateRequestInput): SettlementRequest {
   const request: SettlementRequest = {
     id,
     requesterName: input.requesterName,
+    requesterBankCode: input.requesterBankCode,
     requesterAccount: input.requesterAccount,
     requesterToken: input.requesterToken,
     splitMode: input.splitMode,
@@ -127,6 +128,7 @@ function localCareReceived(token: string, last4: string | null): number {
 type RequestRow = {
   id: string;
   requester_name: string;
+  requester_bank_code: string | null;
   requester_account: string;
   requester_token: string;
   split_mode: "equal" | "custom";
@@ -167,6 +169,7 @@ function toRequest(row: RequestRow, participants: ParticipantRow[]): SettlementR
   return {
     id: row.id,
     requesterName: row.requester_name,
+    requesterBankCode: row.requester_bank_code,
     requesterAccount: row.requester_account,
     requesterToken: row.requester_token,
     splitMode: row.split_mode,
@@ -187,6 +190,7 @@ export async function createRequest(input: CreateRequestInput): Promise<Settleme
         .from("settlement_requests")
         .insert({
           requester_name: input.requesterName,
+          requester_bank_code: input.requesterBankCode,
           requester_account: input.requesterAccount,
           requester_token: input.requesterToken,
           split_mode: input.splitMode,

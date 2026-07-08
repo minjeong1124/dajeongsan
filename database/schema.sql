@@ -8,6 +8,7 @@
 create table if not exists settlement_requests (
   id uuid primary key default gen_random_uuid(),
   requester_name text not null,
+  requester_bank_code text,       -- 금융결제원 표준 은행 코드 (예: 090=카카오뱅크) → 화면에서 은행명/로고로 맵핑
   requester_account text not null,
   requester_token text not null,
   split_mode text not null check (split_mode in ('equal', 'custom')),
@@ -30,6 +31,9 @@ create table if not exists settlement_participants (
   payer_last4 text,               -- 매칭용 계좌 뒷자리 4자리
   created_at timestamptz not null default now()
 );
+
+-- 2-1) 기존 설치 마이그레이션 — 이전 버전 스키마로 테이블을 이미 만든 경우 은행 코드 컬럼 추가
+alter table settlement_requests add column if not exists requester_bank_code text;
 
 -- 3) 조회 성능 인덱스
 create index if not exists idx_participants_request on settlement_participants (request_id);

@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { BankLogo } from "@/components/bank-logo";
 import { CountUpAmount } from "@/components/count-up-amount";
 import { useToast } from "@/components/toast";
+import { getBank } from "@/lib/banks";
 import { getSavedLast4, getToken, hasToken, saveLast4 } from "@/lib/identity";
 import { carePhrase, formatWon, judgeCut } from "@/lib/money";
 import { findParticipant, markViewed } from "@/lib/store";
@@ -99,8 +101,12 @@ export default function ParticipantPage() {
 
   const copyAccount = async () => {
     if (!request) return;
+    const bank = getBank(request.requesterBankCode);
+    const text = bank
+      ? `${bank.name} ${request.requesterAccount}`
+      : request.requesterAccount;
     try {
-      await navigator.clipboard.writeText(request.requesterAccount);
+      await navigator.clipboard.writeText(text);
       toast("계좌번호를 복사했어요.");
     } catch {
       toast("복사에 실패했어요. 길게 눌러 직접 복사해주세요");
@@ -258,10 +264,19 @@ export default function ParticipantPage() {
         style={{ animationDelay: "160ms" }}
       >
         <p className="text-xs font-semibold text-stone-400">보낼 계좌</p>
-        <p className="mt-1 break-all text-base font-bold text-stone-900">
-          {request.requesterAccount}
-        </p>
-        <p className="mt-0.5 text-xs text-stone-400">예금주: {request.requesterName}</p>
+        {(() => {
+          const bank = getBank(request.requesterBankCode);
+          return (
+            <div className="mt-1.5 flex items-center gap-2">
+              {bank && <BankLogo bank={bank} size={28} />}
+              <p className="break-all text-base font-bold text-stone-900">
+                {bank ? `${bank.name} ` : ""}
+                {request.requesterAccount}
+              </p>
+            </div>
+          );
+        })()}
+        <p className="mt-1 text-xs text-stone-400">예금주: {request.requesterName}</p>
         <button
           type="button"
           onClick={copyAccount}

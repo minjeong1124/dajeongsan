@@ -46,9 +46,9 @@ export function saveLast4(last4: string) {
   safeSet(LAST4_KEY, last4);
 }
 
-/** 절삭 토글 전역 설정 — 한 번 켜면 계속 유지 */
+/** 절삭 토글 전역 설정 — 기본 on, 사용자가 변경한 값은 계속 유지 */
 export function getCareModeDefault(): boolean {
-  return safeGet(CARE_MODE_KEY) === "on";
+  return safeGet(CARE_MODE_KEY) !== "off";
 }
 
 export function setCareModeDefault(on: boolean) {

@@ -18,6 +18,8 @@ export interface Participant {
 export interface SettlementRequest {
   id: string;
   requesterName: string;
+  /** 금융결제원 표준 은행 코드 — 노출 시 은행명/로고로 맵핑 (과거 데이터는 null 가능) */
+  requesterBankCode: string | null;
   requesterAccount: string;
   requesterToken: string;
   splitMode: SplitMode;
@@ -29,6 +31,7 @@ export interface SettlementRequest {
 
 export interface CreateRequestInput {
   requesterName: string;
+  requesterBankCode: string;
   requesterAccount: string;
   requesterToken: string;
   splitMode: SplitMode;
