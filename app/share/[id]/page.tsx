@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useToast } from "@/components/toast";
 import { bestCaseAmount, formatWon } from "@/lib/money";
 import { getRequest } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase";
 import type { SettlementRequest } from "@/lib/types";
 
 export default function SharePage() {
@@ -13,6 +14,8 @@ export default function SharePage() {
   const toast = useToast();
   const [request, setRequest] = useState<SettlementRequest | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "notfound">("loading");
+  // 이 요청이 Supabase(DB)에 실제 저장됐는지 — 로컬 폴백만 됐다면 다른 기기에서 링크가 열리지 않음
+  const [savedRemotely, setSavedRemotely] = useState<boolean | null>(null);
 
   useEffect(() => {
     getRequest(id)
@@ -21,6 +24,18 @@ export default function SharePage() {
         setStatus(req ? "ready" : "notfound");
       })
       .catch(() => setStatus("notfound"));
+
+    const sb = getSupabase();
+    if (!sb) {
+      setSavedRemotely(false);
+      return;
+    }
+    sb.from("settlement_requests")
+      .select("id")
+      .eq("id", id)
+      .maybeSingle()
+      .then(({ data, error }) => setSavedRemotely(!error && data !== null))
+      .then(undefined, () => setSavedRemotely(false));
   }, [id]);
 
   const linkFor = (pid: string) =>
@@ -44,23 +59,6 @@ export default function SharePage() {
       lines.push(`빠르게 확인하면 끝자리가 조금 덜어질 수 있어요 :)`);
     }
     lines.push(linkFor(pid));
-    return lines.join("\n");
-  };
-
-  const fullMessage = () => {
-    if (!request) return "";
-    const lines = [
-      "오늘 정산 요청이 준비됐어요.",
-      "",
-      "각자 이름에 맞는 링크로 금액을 확인해주세요.",
-    ];
-    if (request.truncationEnabled) {
-      lines.push("빠르게 확인하면 끝자리가 조금 덜어질 수 있어요 :)");
-    }
-    lines.push("");
-    for (const p of request.participants) {
-      lines.push(`${p.name}: ${linkFor(p.id)}`);
-    }
     return lines.join("\n");
   };
 
@@ -111,14 +109,23 @@ export default function SharePage() {
         <p className="mt-1.5 text-sm text-stone-500">각자 이름에 맞는 링크를 보내주세요</p>
       </header>
 
-      <button
-        type="button"
-        onClick={() => copy(fullMessage(), "카톡에 붙여넣을 문구를 복사했어요")}
-        className="animate-fade-in-up h-12 w-full rounded-xl bg-[#FEE500] text-sm font-semibold text-stone-900 transition-all hover:brightness-95 active:scale-95"
+      {/* DB에 저장되지 못하고 로컬 폴백된 경우 — 다른 기기에서 링크가 열리지 않음을 안내 */}
+      {savedRemotely === false && (
+        <p className="animate-fade-in-up rounded-xl bg-rose-50 px-4 py-3 text-xs font-medium text-rose-600">
+          ⚠️ 데이터베이스에 연결되지 않아 이 정산은 지금 이 기기에서만 열 수 있어요.
+          다른 기기에서도 링크가 열리려면 Supabase 스키마(database/schema.sql) 설정이
+          필요해요.
+        </p>
+      )}
+
+      {/* 오클릭에 의한 열람 오판정을 막기 위해 개별 발송만 지원 */}
+      <p
+        className="animate-fade-in-up rounded-xl bg-stone-100 px-4 py-3 text-xs text-stone-500"
         style={{ animationDelay: "80ms" }}
       >
-        💬 카톡에 붙여넣을 문구 복사
-      </button>
+        ⚠️ 링크는 각자에게 <span className="font-semibold">따로따로</span> 보내주세요.
+        다른 사람이 잘못 열면 그 사람이 확인한 것으로 처리돼요.
+      </p>
 
       <div className="space-y-3">
         {request.participants.map((p, i) => {
