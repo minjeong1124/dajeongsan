@@ -98,7 +98,7 @@ export default function DashboardPage() {
           <br />
           링크가 정확한지 확인해주세요.
         </p>
-        <Link href="/" className="mt-2 text-sm font-semibold text-[#6E8FCB]">
+        <Link href="/create" className="mt-2 text-sm font-semibold text-[#6E8FCB]">
           새 정산 만들기
         </Link>
       </div>
@@ -207,13 +207,13 @@ export default function DashboardPage() {
 
       <div className="animate-fade-in-up space-y-3" style={{ animationDelay: "480ms" }}>
         <Link
-          href="/"
+          href="/create"
           className="flex h-12 w-full items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
         >
           새 정산 만들기
         </Link>
         <Link
-          href="/"
+          href="/create"
           className="block text-center text-sm font-semibold text-[#A3927E] underline-offset-4 hover:text-[#6E8FCB] hover:underline"
         >
           기존 사용자예요!

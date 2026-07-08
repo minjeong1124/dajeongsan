@@ -95,7 +95,7 @@ export default function SharePage() {
           <br />
           링크가 정확한지 확인해주세요.
         </p>
-        <Link href="/" className="mt-2 text-sm font-semibold text-[#6E8FCB]">
+        <Link href="/create" className="mt-2 text-sm font-semibold text-[#6E8FCB]">
           새 정산 만들기
         </Link>
       </div>

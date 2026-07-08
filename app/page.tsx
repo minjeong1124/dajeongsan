@@ -1,463 +1,272 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { BankLogo } from "@/components/bank-logo";
-import { BankSelectSheet } from "@/components/bank-select-sheet";
-import { CalculatorSheet } from "@/components/calculator-sheet";
-import { getBank } from "@/lib/banks";
-import {
-  getCareModeDefault,
-  getSavedLast4,
-  getSavedRequesterInfo,
-  getToken,
-  saveRequesterInfo,
-  setCareModeDefault,
-} from "@/lib/identity";
-import { formatWon, splitEqually } from "@/lib/money";
-import { careReceived, createRequest } from "@/lib/store";
-import type { SplitMode } from "@/lib/types";
-
-interface ParticipantDraft {
-  key: number;
-  name: string;
-  amount: string; // 직접 입력 모드에서 사용
-}
-
-let draftKey = 0;
-
-/**
- * 요소가 화면 중앙에 오도록 부드럽게 스크롤.
- * 환경에 따라 scrollIntoView의 smooth 옵션이 무시될 수 있어 rAF로 직접 구현하고,
- * rAF가 실행되지 않는 환경에서는 즉시 스크롤로 폴백한다.
- * 목표 위치는 매 프레임 재계산해 스크롤 중 레이아웃이 변해도 중앙에 정확히 멈춘다.
- */
-function smoothScrollToCenter(el: HTMLElement, duration = 400) {
-  const targetY = () => {
-    const rect = el.getBoundingClientRect();
-    return Math.max(0, window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2);
-  };
-  let done = false;
-  const startY = window.scrollY;
-  const start = performance.now();
-  const tick = (now: number) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-    window.scrollTo(0, startY + (targetY() - startY) * eased);
-    if (progress < 1) requestAnimationFrame(tick);
-    else done = true;
-  };
-  requestAnimationFrame(tick);
-  setTimeout(() => {
-    if (!done) window.scrollTo(0, targetY());
-  }, duration + 150);
-}
-
-export default function CreatePage() {
-  const router = useRouter();
-
-  const [requesterName, setRequesterName] = useState("");
-  const [bankCode, setBankCode] = useState<string | null>(null);
-  const [account, setAccount] = useState("");
-  const [showBankSheet, setShowBankSheet] = useState(false);
-  const [total, setTotal] = useState("");
-  const [splitMode, setSplitMode] = useState<SplitMode>("equal");
-  const [participants, setParticipants] = useState<ParticipantDraft[]>([
-    { key: ++draftKey, name: "", amount: "" },
-  ]);
-  const [careMode, setCareMode] = useState(false);
-  const [receivedCare, setReceivedCare] = useState(0);
-  const [showCalculator, setShowCalculator] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const participantsSectionRef = useRef<HTMLElement>(null);
-
-  // 전역 토글 설정 + 저장된 내 정보(디폴트 값) + 재사용자 배려 배너 데이터 로드
-  useEffect(() => {
-    setCareMode(getCareModeDefault());
-    const saved = getSavedRequesterInfo();
-    if (saved) {
-      setRequesterName(saved.name);
-      setBankCode(saved.bankCode);
-      setAccount(saved.account);
-    }
-    const token = getToken();
-    careReceived(token, getSavedLast4())
-      .then(setReceivedCare)
-      .catch(() => setReceivedCare(0));
-  }, []);
-
-  const totalValue = useMemo(() => parseInt(total.replace(/[^\d]/g, ""), 10) || 0, [total]);
-  const namedParticipants = participants.filter((p) => p.name.trim().length > 0);
-
-  const customAmountsValid =
-    splitMode === "custom" &&
-    namedParticipants.length > 0 &&
-    namedParticipants.every((p) => (parseInt(p.amount.replace(/[^\d]/g, ""), 10) || 0) > 0);
-
-  const amountReady = splitMode === "equal" ? totalValue > 0 : customAmountsValid;
-  const infoReady =
-    requesterName.trim().length > 0 && bankCode !== null && account.trim().length > 0;
-  const canSubmit = amountReady && namedParticipants.length > 0 && infoReady && !submitting;
-
-  // CTA 비활성화 안내 문구 (screen-specifications.md 3-1)
-  const disabledHint = !amountReady
-    ? "정산할 금액을 입력하면 요청을 만들 수 있어요"
-    : namedParticipants.length === 0
-      ? "함께 정산할 사람을 1명 이상 추가해주세요"
-      : !infoReady
-        ? "내 이름과 입금받을 은행·계좌번호를 입력해주세요"
-        : null;
-
-  const formatInput = (raw: string) => {
-    const digits = raw.replace(/[^\d]/g, "");
-    return digits ? parseInt(digits, 10).toLocaleString("ko-KR") : "";
-  };
-
-  const updateParticipant = (key: number, patch: Partial<ParticipantDraft>) => {
-    setParticipants((prev) => prev.map((p) => (p.key === key ? { ...p, ...patch } : p)));
-  };
-
-  const toggleCareMode = (on: boolean) => {
-    setCareMode(on);
-    setCareModeDefault(on); // 한 번 켜면 전역 설정으로 유지
-  };
-
-  const selectSplitMode = (mode: SplitMode) => {
-    setSplitMode(mode);
-    // 금액 직접 입력 선택 시: 참여자 이름 입력창에 자동 포커스 + 섹션을 화면 중앙으로 스크롤
-    if (mode === "custom") {
-      setTimeout(() => {
-        const section = participantsSectionRef.current;
-        if (!section) return;
-        section.querySelector("input")?.focus({ preventScroll: true });
-        smoothScrollToCenter(section);
-      }, 50);
-    }
-  };
-
-  const submit = async () => {
-    if (!canSubmit) return;
-    setSubmitting(true);
-    try {
-      const names = namedParticipants.map((p) => p.name.trim());
-      let amounts: number[];
-      if (splitMode === "equal") {
-        amounts = splitEqually(totalValue, names.length);
-      } else {
-        amounts = namedParticipants.map(
-          (p) => parseInt(p.amount.replace(/[^\d]/g, ""), 10) || 0
-        );
-      }
-      // 내 정보 저장 — 재접속 시 생성 화면에 디폴트 값으로 노출
-      saveRequesterInfo({
-        name: requesterName.trim(),
-        bankCode,
-        account: account.trim(),
-      });
-      const request = await createRequest({
-        requesterName: requesterName.trim(),
-        requesterBankCode: bankCode ?? "",
-        requesterAccount: account.trim(),
-        requesterToken: getToken(),
-        splitMode,
-        totalAmount: splitMode === "equal" ? totalValue : amounts.reduce((a, b) => a + b, 0),
-        truncationEnabled: careMode,
-        participants: names.map((name, i) => ({ name, baseAmount: amounts[i] })),
-      });
-      router.push(`/share/${request.id}`);
-    } catch {
-      setSubmitting(false);
-    }
-  };
-
-  const previewBase = splitMode === "equal" && totalValue > 0 && namedParticipants.length > 0
-    ? splitEqually(totalValue, namedParticipants.length)[0]
-    : 26437;
-
+/** 브랜드 로고 — 말풍선 + ₩ + 하트 (외부 이미지 대신 인라인 SVG) */
+function LogoMark({ size = 56 }: { size?: number }) {
   return (
-    <div className="space-y-5">
-      {/* (재사용자에게만) 상단 배너 — 배려 모드 OFF + 받은 배려 기록이 있을 때만 노출 */}
-      {receivedCare > 0 && !careMode && (
-        <section className="animate-fade-in-up rounded-2xl bg-[#EDF3FC] p-4">
-          <p className="text-xs font-semibold text-[#6E8FCB]">지금까지 받은 배려</p>
-          <p className="mt-1 text-sm font-medium text-[#5A4636]">
-            친구들이 지난 정산에서 총{" "}
-            <span className="tnum font-bold text-[#5F82C2]">{formatWon(receivedCare)}</span>을
-            덜어줬어요
-          </p>
-          <button
-            type="button"
-            onClick={() => toggleCareMode(true)}
-            className="mt-3 rounded-xl bg-[#7E9CD1] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
-          >
-            나도 배려 모드 써보기
-          </button>
-        </section>
-      )}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      aria-hidden
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M20 6h24c7.7 0 14 6.3 14 14v14c0 7.7-6.3 14-14 14h-2l-8 9v-9H20c-7.7 0-14-6.3-14-14V20C6 12.3 12.3 6 20 6z"
+        stroke="#4A3728"
+        strokeWidth="5"
+        strokeLinejoin="round"
+      />
+      <text
+        x="21"
+        y="28"
+        fontSize="17"
+        fontWeight="800"
+        fill="#4A3728"
+        textAnchor="middle"
+      >
+        ₩
+      </text>
+      <line x1="15" y1="36" x2="34" y2="36" stroke="#4A3728" strokeWidth="4.5" strokeLinecap="round" />
+      <line x1="15" y1="44" x2="27" y2="44" stroke="#4A3728" strokeWidth="4.5" strokeLinecap="round" />
+      <path
+        d="M46 38c-2.6-2.4-6.8-1.6-8.3 1.3-1-3.1-4.9-4.6-7.9-2.6"
+        fill="none"
+        stroke="none"
+      />
+      <path
+        d="M47.5 39.2c-1.9-1.8-5-1.7-6.8.3l-.7.8-.7-.8c-1.8-2-4.9-2.1-6.8-.3-2 1.9-2.1 5-.2 7l7 7.3a1 1 0 0 0 1.4 0l7-7.3c1.9-2 1.8-5.1-.2-7z"
+        fill="#7E9CD1"
+      />
+      <line x1="50" y1="4" x2="48" y2="10" stroke="#7E9CD1" strokeWidth="3.5" strokeLinecap="round" />
+      <line x1="58" y1="8" x2="54" y2="13" stroke="#7E9CD1" strokeWidth="3.5" strokeLinecap="round" />
+    </svg>
+  );
+}
 
-      <header className="animate-fade-in-up">
-        <h1 className="text-2xl font-extrabold text-[#4A3728]">
-          오늘 모임, 얼마씩 정산할까요?
+export default function LandingPage() {
+  return (
+    <div className="space-y-16 pb-4">
+      {/* ── Hero: "맞아, 내 얘기다" + 얻게 될 결과 ── */}
+      <header className="animate-fade-in-up pt-6 text-center">
+        <div className="flex justify-center">
+          <LogoMark />
+        </div>
+        <p className="mt-4 text-sm font-semibold text-[#6E8FCB]">
+          정산 요청이 민망한 사람들을 위한 서비스, 다정산
+        </p>
+        <h1 className="mt-3 text-3xl font-extrabold leading-snug text-[#4A3728]">
+          쪼잔해 보일 걱정 없이
+          <br />
+          정산 요청을 보내세요
         </h1>
-        <p className="mt-1.5 text-sm text-[#8C7963]">
-          금액은 정확하게, 요청은 조금 더 다정하게 도와드릴게요
+        <p className="mx-auto mt-4 max-w-sm text-[15px] leading-relaxed text-[#8C7963]">
+          &lsquo;26,437원 보내줘&rsquo;라고 쓰다가 지워본 적 있다면 —
+          <br />
+          끝자리를 살짝 덜어내는 것만으로,
+          <br />
+          같은 요청도 배려가 됩니다.
+        </p>
+        <Link
+          href="/create"
+          className="mt-7 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
+        >
+          정산 요청 만들기
+        </Link>
+        <p className="mt-3 text-xs text-[#A3927E]">
+          회원가입도, 앱 설치도 없어요. 1분이면 충분해요.
         </p>
       </header>
 
-      {/* 요청자 정보 — 참여자 화면(3-3)의 요청자 이름·계좌 노출에 필요 */}
-      <section
-        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
-        style={{ animationDelay: "80ms" }}
-      >
-        <p className="text-sm font-semibold text-[#6A5443]">내 정보</p>
-        <input
-          type="text"
-          value={requesterName}
-          onChange={(e) => setRequesterName(e.target.value)}
-          placeholder="내 이름을 입력해주세요"
-          className="h-12 w-full rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
-        />
-        {/* 은행 선택란 + 계좌번호 입력란 — 분리된 2개 필드, DB에는 은행 코드로 저장 */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowBankSheet(true)}
-            className={`flex h-12 w-[42%] shrink-0 items-center gap-2 rounded-xl border px-3 text-sm transition-all active:scale-95 ${
-              bankCode
-                ? "border-[#E8DCC5] bg-white font-semibold text-[#5A4636]"
-                : "border-[#E8DCC5] bg-white text-[#A3927E]"
-            }`}
-          >
-            {(() => {
-              const bank = getBank(bankCode);
-              return bank ? (
-                <>
-                  <BankLogo bank={bank} size={24} />
-                  <span className="truncate">{bank.name}</span>
-                </>
-              ) : (
-                <>
-                  <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F2E9D6] text-xs">
-                    🏦
-                  </span>
-                  은행 선택
-                </>
-              );
-            })()}
-          </button>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={account}
-            onChange={(e) => setAccount(e.target.value.replace(/[^\d-]/g, ""))}
-            placeholder="계좌번호를 입력해주세요"
-            className="tnum h-12 min-w-0 flex-1 rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
-          />
-        </div>
-      </section>
-
-      {/* 총액 + 분배 방식 */}
-      <section
-        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
-        style={{ animationDelay: "160ms" }}
-      >
-        <p className="text-sm font-semibold text-[#6A5443]">정산 금액</p>
-
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#F2E9D6] p-1">
-          {(
-            [
-              ["equal", "N분의 1로 나누기"],
-              ["custom", "금액 직접 입력"],
-            ] as const
-          ).map(([mode, label]) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => selectSplitMode(mode)}
-              className={`h-10 rounded-lg text-sm font-semibold transition-all active:scale-95 ${
-                splitMode === mode
-                  ? "bg-white text-[#5F82C2] shadow-sm"
-                  : "text-[#8C7963]"
-              }`}
+      {/* ── 1. 공감: "맞아, 정확히 요청하는 거 은근 민망했어" ── */}
+      <section className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
+        <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
+          이런 순간, 있지 않았나요?
+        </h2>
+        <div className="mt-5 space-y-3">
+          {[
+            ["💸", "437원까지 정확히 받자니, 너무 따지는 사람 같아 보이고"],
+            ["😶", "확인 안 하는 친구에게 다시 말 꺼내자니 그것도 민망하고"],
+            ["🫠", "결국 “대충 보내줘” 하고 나 혼자 손해 보며 넘어가고"],
+          ].map(([emoji, text]) => (
+            <div
+              key={text}
+              className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
             >
-              {label}
-            </button>
+              <span className="text-xl">{emoji}</span>
+              <p className="text-sm leading-relaxed text-[#5A4636]">{text}</p>
+            </div>
           ))}
         </div>
-        <p className="text-xs text-[#A3927E]">
-          {splitMode === "equal"
-            ? "참여자 수에 맞춰 자동으로 나눠드려요"
-            : "사람마다 다른 금액을 직접 입력할 수 있어요"}
+        <p className="mt-5 text-center text-sm font-semibold text-[#6A5443]">
+          돈 계산이 어려운 게 아니라, <span className="text-[#5F82C2]">돈 얘기</span>가
+          어려운 거예요.
         </p>
-
-        {splitMode === "equal" && (
-          <>
-            {/* 계산기 버튼을 필드 왼쪽에 상시 노출 — 별도 계산기 앱 없이 인앱 계산이 가능함을 인지시킴 */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowCalculator(true)}
-                className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-[#E8DCC5] bg-white px-3.5 text-sm font-medium text-[#77614E] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
-              >
-                🧮 계산기 사용
-              </button>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={total}
-                onChange={(e) => setTotal(formatInput(e.target.value))}
-                placeholder="총 결제 금액을 입력해주세요"
-                className="tnum h-12 min-w-0 flex-1 rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
-              />
-            </div>
-            <p className="text-xs text-[#A3927E]">
-              금액이 복잡하면 계산기로 바로 계산해서 입력할 수 있어요
-            </p>
-          </>
-        )}
       </section>
 
-      {/* 참여자 이름 입력 — 동적 추가/삭제 리스트 */}
-      <section
-        ref={participantsSectionRef}
-        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
-        style={{ animationDelay: "240ms" }}
-      >
-        <p className="text-sm font-semibold text-[#6A5443]">함께 정산할 사람</p>
+      {/* ── 2. 시연: "26,437원이 26,000원이 되면 느낌이 부드럽네" ── */}
+      <section className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
+        <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
+          끝자리를 덜어내면,
+          <br />
+          요청의 온도가 달라져요
+        </h2>
 
-        {participants.length === 0 && (
-          <p className="rounded-xl bg-[#F8F1E1] px-4 py-6 text-center text-sm text-[#A3927E]">
-            🙌 정산할 사람을 1명 이상 추가해주세요
-          </p>
-        )}
-
-        {participants.map((p) => (
-          <div key={p.key} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={p.name}
-              onChange={(e) => updateParticipant(p.key, { name: e.target.value })}
-              placeholder="이름을 입력해주세요"
-              className="h-12 min-w-0 flex-1 rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
-            />
-            {splitMode === "custom" && (
-              <input
-                type="text"
-                inputMode="numeric"
-                value={p.amount}
-                onChange={(e) =>
-                  updateParticipant(p.key, { amount: formatInput(e.target.value) })
-                }
-                placeholder="금액"
-                className="tnum h-12 w-28 rounded-xl border border-[#E8DCC5] bg-white px-3 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
-              />
-            )}
-            <button
-              type="button"
-              onClick={() =>
-                setParticipants((prev) => prev.filter((x) => x.key !== p.key))
-              }
-              className="h-12 shrink-0 rounded-xl px-3 text-sm text-[#A3927E] transition-all hover:text-[#6E8FCB] active:scale-95"
-            >
-              삭제
-            </button>
-          </div>
-        ))}
-
-        <button
-          type="button"
-          onClick={() =>
-            setParticipants((prev) => [...prev, { key: ++draftKey, name: "", amount: "" }])
-          }
-          className="h-12 w-full rounded-xl border border-dashed border-[#DCCFB8] text-sm font-semibold text-[#8C7963] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
-        >
-          + 참여자 추가
-        </button>
-
-        {splitMode === "equal" && totalValue > 0 && namedParticipants.length > 0 && (
-          <p className="tnum text-xs text-[#A3927E]">
-            1인당 약 {formatWon(splitEqually(totalValue, namedParticipants.length)[0])}씩
-            요청돼요
-          </p>
-        )}
-      </section>
-
-      {/* 절삭 토글 카드 — 빠른 정산 배려 모드 (기본 off) */}
-      <section
-        className="animate-fade-in-up rounded-2xl bg-[#EDF3FC] p-4"
-        style={{ animationDelay: "320ms" }}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-bold text-[#4A3728]">빠른 정산 배려 모드</p>
-            <p className="mt-1 text-sm text-[#77614E]">
-              빠르게 확인해준 사람에게 끝자리를 조금 덜어 요청할 수 있어요
+        <div className="mt-6 space-y-3">
+          {/* Before */}
+          <div className="rounded-2xl bg-[#F2E9D6] p-4">
+            <p className="text-xs font-semibold text-[#A3927E]">그냥 보내면</p>
+            <p className="tnum mt-1.5 text-base font-bold text-[#77614E]">
+              “26,437원 보내줘.”
             </p>
+            <p className="mt-1 text-xs text-[#A3927E]">…정확하지만, 어쩐지 차가워요</p>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={careMode}
-            onClick={() => toggleCareMode(!careMode)}
-            className={`relative h-7 w-12 shrink-0 rounded-full transition-all ${
-              careMode ? "bg-[#7E9CD1]" : "bg-[#DCCFB8]"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
-                careMode ? "left-[22px]" : "left-0.5"
-              }`}
-            />
-          </button>
+          {/* After */}
+          <div className="relative rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#D4DFF3]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#EDF3FC] px-2.5 py-1 text-xs font-semibold text-[#5F82C2]">
+              💙 다정산으로 보내면
+            </span>
+            <p className="mt-2.5 text-base font-bold text-[#4A3728]">
+              “<span className="tnum text-[#5F82C2]">26,000원</span>만 보내줘,
+              끝자리는 내가 덜었어 :)”
+            </p>
+            <p className="mt-1 text-xs text-[#8C7963]">
+              같은 정산인데, 배려가 먼저 도착해요
+            </p>
+            <span className="absolute -right-1 -top-3 rounded-full bg-[#F9E9C8] px-2.5 py-1 text-xs font-bold text-[#8A6234]">
+              437원 다정 혜택
+            </span>
+          </div>
         </div>
 
-        {careMode && (
-          <p className="animate-fade-in-up tnum mt-3 rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-[#5F82C2]">
-            예) {formatWon(previewBase)} →{" "}
-            {formatWon(previewBase - (previewBase % 1000))}만 보내주세요 :)
-          </p>
-        )}
-        <p className="mt-2 text-xs text-[#A3927E]">
-          요청마다 고민하지 않아도, 정해진 기준으로 자동 적용돼요
+        <p className="mt-5 text-center text-sm text-[#8C7963]">
+          덜어낼 금액과 다정한 문구는 다정산이 자동으로 만들어요.
+          <br />
+          당신은 링크를 보내기만 하면 돼요.
         </p>
       </section>
 
-      {/* CTA */}
-      <div className="animate-fade-in-up space-y-2" style={{ animationDelay: "400ms" }}>
-        {disabledHint && (
-          <p className="text-center text-xs text-[#A3927E]">{disabledHint}</p>
-        )}
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!canSubmit}
-          className="h-12 w-full rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#EDE3CE] disabled:text-[#A3927E]"
+      {/* ── 3. 독촉이 아닌 이유: "빨리 확인하면 혜택이 생기니까" ── */}
+      <section className="animate-fade-in-up" style={{ animationDelay: "240ms" }}>
+        <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
+          빨리 확인할수록, 혜택은 커져요
+        </h2>
+        <div className="mt-5 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#F0E6D2]">
+          {[
+            ["1시간 안에 확인하면", "최대 999원을 덜어드려요", true],
+            ["5시간 안에 확인하면", "최대 99원을 덜어드려요", false],
+            ["그 이후에는", "정확한 금액 그대로", false],
+          ].map(([when, benefit, highlight], i) => (
+            <div
+              key={when as string}
+              className={`flex items-center justify-between px-4 py-3.5 ${
+                i > 0 ? "border-t border-[#F0E6D2]" : ""
+              } ${highlight ? "bg-[#EDF3FC]" : ""}`}
+            >
+              <p className="text-sm font-medium text-[#6A5443]">{when}</p>
+              <p
+                className={`tnum text-sm font-bold ${
+                  highlight ? "text-[#5F82C2]" : "text-[#8C7963]"
+                }`}
+              >
+                {benefit}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-5 text-center text-sm leading-relaxed text-[#8C7963]">
+          먼저 확인할 이유가 생기니까, 재촉할 필요가 없어요.
+          <br />
+          빠른 확인은 <span className="font-semibold text-[#5F82C2]">상대의 기분 좋은 선택</span>이
+          됩니다.
+        </p>
+      </section>
+
+      {/* ── 4. 상호성: "나만 손해 보는 건 아닐 것 같아" ── */}
+      <section className="animate-fade-in-up" style={{ animationDelay: "320ms" }}>
+        <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
+          나만 손해 보는 것 아니냐고요?
+        </h2>
+
+        <div className="mt-5 rounded-2xl bg-[#EDF3FC] p-4">
+          <p className="text-xs font-semibold text-[#5F82C2]">배려 기록</p>
+          <div className="mt-2 rounded-xl bg-white px-3 py-2.5">
+            <p className="text-sm font-medium text-[#5A4636]">
+              지난 정산에서 <span className="font-bold">민지</span>님이{" "}
+              <span className="tnum font-bold text-[#5F82C2]">700원</span>을 덜어줬어요
+            </p>
+          </div>
+          <p className="mt-2.5 text-xs leading-relaxed text-[#8C7963]">
+            주고받은 배려는 기록으로 남아, 다음 정산에서 자연스럽게 서로에게 돌아와요.
+          </p>
+        </div>
+
+        <div className="mt-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]">
+          <p className="text-sm leading-relaxed text-[#6A5443]">
+            덜어내는 건 언제나 <span className="font-bold">끝자리뿐</span>이에요. 한 번에
+            최대 999원, 99원씩이라면 3개월 동안 11번을 정산해도{" "}
+            <span className="tnum font-bold">약 1,089원</span> — 관계의 어색함을 지우는
+            값으로는 충분히 다정하죠.
+          </p>
+          <p className="mt-2 text-xs text-[#A3927E]">
+            5,000원 미만 소액 정산에는 적용되지 않고, 언제든 정확한 금액으로도 요청할 수
+            있어요.
+          </p>
+        </div>
+      </section>
+
+      {/* ── 5. 행동 장벽 제거: "한 번 만들어볼까?" ── */}
+      <section className="animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+        <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
+          시작은 1분이면 돼요
+        </h2>
+        <ol className="mt-5 space-y-3">
+          {[
+            "금액과 이름을 입력하고 정산 링크를 만들어요",
+            "참여자별 링크를 카톡으로 하나씩 보내요",
+            "상대가 확인하는 순간, 자동으로 덜어지고 기록까지 남아요",
+          ].map((step, i) => (
+            <li
+              key={step}
+              className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7E9CD1] text-xs font-bold text-white">
+                {i + 1}
+              </span>
+              <p className="text-sm leading-relaxed text-[#5A4636]">{step}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ── Final CTA ── */}
+      <section
+        className="animate-fade-in-up rounded-2xl bg-[#EDF3FC] px-5 py-10 text-center"
+        style={{ animationDelay: "480ms" }}
+      >
+        <h2 className="text-2xl font-extrabold leading-snug text-[#4A3728]">
+          오늘 정산도
+          <br />
+          조금 더 다정하게 보내볼까요?
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-[#8C7963]">
+          정확한 계산은 그대로,
+          <br />
+          요청의 부담은 조금 덜어보세요.
+        </p>
+        <Link
+          href="/create"
+          className="mt-6 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
         >
-          {submitting ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              정산 요청을 준비하고 있어요
-            </span>
-          ) : (
-            "정산 요청하기"
-          )}
-        </button>
-      </div>
+          정산 요청 만들기
+        </Link>
+      </section>
 
-      {showBankSheet && (
-        <BankSelectSheet
-          selectedCode={bankCode}
-          onSelect={setBankCode}
-          onClose={() => setShowBankSheet(false)}
-        />
-      )}
-
-      {showCalculator && (
-        <CalculatorSheet
-          onConfirm={(value) => setTotal(value.toLocaleString("ko-KR"))}
-          onClose={() => setShowCalculator(false)}
-        />
-      )}
+      {/* ── Footer ── */}
+      <footer className="pb-2 pt-2 text-center">
+        <p className="text-sm font-extrabold text-[#4A3728]">다정산</p>
+        <p className="mt-1 text-xs text-[#A3927E]">정산도 조금 더 다정하게</p>
+      </footer>
     </div>
   );
 }
