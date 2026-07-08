@@ -3,10 +3,34 @@ import "./globals.css";
 import { Gnb } from "@/components/gnb";
 import { ToastProvider } from "@/components/toast";
 
+const OG_TITLE = "다정산 — 빠르게 확인하면 더 다정한 정산";
+const OG_DESCRIPTION = "정산 확인 시간에 따라 끝자리를 덜어주는, 새로운 모임 정산 방식";
+
+// OG 이미지 절대 URL 기준 — Vercel 배포 시 프로덕션 도메인이 자동 주입됨
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
+  ? process.env.NEXT_PUBLIC_SITE_URL
+  : process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "다정산 — 금액은 정확하게, 요청은 다정하게",
-  description:
-    "정산 요청을 독촉이 아니라 배려로. 빠르게 확인한 친구에게 끝자리를 덜어 요청하는 정산 서비스, 다정산.",
+  metadataBase: new URL(SITE_URL),
+  title: OG_TITLE,
+  description: OG_DESCRIPTION,
+  openGraph: {
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
+    images: ["/og.png"],
+    type: "website",
+    siteName: "다정산",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
+    images: ["/og.png"],
+  },
 };
 
 export const viewport: Viewport = {
