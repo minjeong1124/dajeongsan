@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BankLogo } from "@/components/bank-logo";
 import { BankSelectSheet } from "@/components/bank-select-sheet";
@@ -24,6 +24,33 @@ interface ParticipantDraft {
 
 let draftKey = 0;
 
+/**
+ * 요소가 화면 중앙에 오도록 부드럽게 스크롤.
+ * 환경에 따라 scrollIntoView의 smooth 옵션이 무시될 수 있어 rAF로 직접 구현하고,
+ * rAF가 실행되지 않는 환경에서는 즉시 스크롤로 폴백한다.
+ * 목표 위치는 매 프레임 재계산해 스크롤 중 레이아웃이 변해도 중앙에 정확히 멈춘다.
+ */
+function smoothScrollToCenter(el: HTMLElement, duration = 400) {
+  const targetY = () => {
+    const rect = el.getBoundingClientRect();
+    return Math.max(0, window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2);
+  };
+  let done = false;
+  const startY = window.scrollY;
+  const start = performance.now();
+  const tick = (now: number) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    window.scrollTo(0, startY + (targetY() - startY) * eased);
+    if (progress < 1) requestAnimationFrame(tick);
+    else done = true;
+  };
+  requestAnimationFrame(tick);
+  setTimeout(() => {
+    if (!done) window.scrollTo(0, targetY());
+  }, duration + 150);
+}
+
 export default function CreatePage() {
   const router = useRouter();
 
@@ -40,6 +67,7 @@ export default function CreatePage() {
   const [receivedCare, setReceivedCare] = useState(0);
   const [showCalculator, setShowCalculator] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const participantsSectionRef = useRef<HTMLElement>(null);
 
   // 전역 토글 설정 + 재사용자 배려 배너 데이터 로드
   useEffect(() => {
@@ -84,6 +112,19 @@ export default function CreatePage() {
   const toggleCareMode = (on: boolean) => {
     setCareMode(on);
     setCareModeDefault(on); // 한 번 켜면 전역 설정으로 유지
+  };
+
+  const selectSplitMode = (mode: SplitMode) => {
+    setSplitMode(mode);
+    // 금액 직접 입력 선택 시: 참여자 이름 입력창에 자동 포커스 + 섹션을 화면 중앙으로 스크롤
+    if (mode === "custom") {
+      setTimeout(() => {
+        const section = participantsSectionRef.current;
+        if (!section) return;
+        section.querySelector("input")?.focus({ preventScroll: true });
+        smoothScrollToCenter(section);
+      }, 50);
+    }
   };
 
   const submit = async () => {
@@ -218,7 +259,7 @@ export default function CreatePage() {
             <button
               key={mode}
               type="button"
-              onClick={() => setSplitMode(mode)}
+              onClick={() => selectSplitMode(mode)}
               className={`h-10 rounded-lg text-sm font-semibold transition-all active:scale-95 ${
                 splitMode === mode
                   ? "bg-white text-rose-600 shadow-sm"
@@ -237,8 +278,15 @@ export default function CreatePage() {
 
         {splitMode === "equal" && (
           <>
-            {/* 계산기 버튼 상시 노출 — 별도 계산기 앱 없이 인앱 계산이 가능함을 인지시킴 */}
+            {/* 계산기 버튼을 필드 왼쪽에 상시 노출 — 별도 계산기 앱 없이 인앱 계산이 가능함을 인지시킴 */}
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowCalculator(true)}
+                className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-600 transition-all hover:border-rose-300 hover:text-rose-500 active:scale-95"
+              >
+                🧮 계산기 사용
+              </button>
               <input
                 type="text"
                 inputMode="numeric"
@@ -247,13 +295,6 @@ export default function CreatePage() {
                 placeholder="총 결제 금액을 입력해주세요"
                 className="tnum h-12 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
               />
-              <button
-                type="button"
-                onClick={() => setShowCalculator(true)}
-                className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl bg-rose-50 px-4 text-sm font-semibold text-rose-600 transition-all hover:bg-rose-100 active:scale-95"
-              >
-                🧮 계산기
-              </button>
             </div>
             <p className="text-xs text-stone-400">
               금액이 복잡하면 계산기로 바로 계산해서 입력할 수 있어요
@@ -264,6 +305,7 @@ export default function CreatePage() {
 
       {/* 참여자 이름 입력 — 동적 추가/삭제 리스트 */}
       <section
+        ref={participantsSectionRef}
         className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100"
         style={{ animationDelay: "240ms" }}
       >

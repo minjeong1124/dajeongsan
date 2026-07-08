@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { BANKS } from "@/lib/banks";
 import { BankLogo } from "@/components/bank-logo";
 
@@ -13,6 +14,12 @@ export function BankSelectSheet({
   onSelect: (code: string) => void;
   onClose: () => void;
 }) {
+  const [query, setQuery] = useState("");
+  const keyword = query.trim().toLowerCase();
+  const filtered = keyword
+    ? BANKS.filter((b) => b.name.toLowerCase().includes(keyword))
+    : BANKS;
+
   return (
     <div
       className="fixed inset-0 z-40 flex items-end justify-center bg-stone-900/30"
@@ -33,8 +40,23 @@ export function BankSelectSheet({
           </button>
         </div>
 
+        {/* 검색바 — 은행명 실시간 필터링 */}
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="은행명을 검색해주세요"
+          className="mb-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+        />
+
+        {filtered.length === 0 && (
+          <p className="rounded-xl bg-stone-50 px-4 py-6 text-center text-sm text-stone-400">
+            🔍 검색 결과가 없어요. 은행명을 다시 확인해주세요
+          </p>
+        )}
+
         <div className="grid max-h-[55vh] grid-cols-2 gap-2 overflow-y-auto pb-2">
-          {BANKS.map((bank) => (
+          {filtered.map((bank) => (
             <button
               key={bank.code}
               type="button"
