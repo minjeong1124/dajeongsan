@@ -73,27 +73,27 @@ export function CalculatorSheet({
   ];
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-stone-900/30" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-[#4A3728]/30" onClick={onClose}>
       <div
         className="animate-sheet-up w-full max-w-md rounded-t-2xl bg-white p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-sm font-semibold text-stone-700">계산기</p>
+          <p className="text-sm font-semibold text-[#6A5443]">계산기</p>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-3 py-2 text-sm text-stone-400 active:scale-95"
+            className="rounded-lg px-3 py-2 text-sm text-[#A3927E] active:scale-95"
           >
             닫기
           </button>
         </div>
 
-        <div className="mb-3 rounded-xl bg-stone-50 px-4 py-3 text-right">
-          <p className="tnum min-h-6 break-all text-lg font-semibold text-stone-900">
-            {expression || <span className="text-stone-300">예) 158000÷6</span>}
+        <div className="mb-3 rounded-xl bg-[#F8F1E1] px-4 py-3 text-right">
+          <p className="tnum min-h-6 break-all text-lg font-semibold text-[#4A3728]">
+            {expression || <span className="text-[#C6B8A4]">예) 158000÷6</span>}
           </p>
-          <p className="tnum text-xs text-rose-500">
+          <p className="tnum text-xs text-[#6E8FCB]">
             {preview !== null && expression ? `= ${preview.toLocaleString("ko-KR")}원` : " "}
           </p>
         </div>
@@ -106,8 +106,8 @@ export function CalculatorSheet({
               onClick={() => (key === "C" ? clear() : append(key))}
               className={`h-12 rounded-xl text-lg font-semibold transition-all active:scale-95 ${
                 /[÷×+\-C]/.test(key)
-                  ? "bg-rose-50 text-rose-600"
-                  : "bg-stone-100 text-stone-800"
+                  ? "bg-[#EDF3FC] text-[#5F82C2]"
+                  : "bg-[#F2E9D6] text-[#5A4636]"
               }`}
             >
               {key}
@@ -116,7 +116,7 @@ export function CalculatorSheet({
           <button
             type="button"
             onClick={backspace}
-            className="h-12 rounded-xl bg-stone-100 text-lg font-semibold text-stone-800 transition-all active:scale-95"
+            className="h-12 rounded-xl bg-[#F2E9D6] text-lg font-semibold text-[#5A4636] transition-all active:scale-95"
           >
             ⌫
           </button>
@@ -124,7 +124,7 @@ export function CalculatorSheet({
             type="button"
             onClick={confirm}
             disabled={preview === null || preview <= 0}
-            className="col-span-3 h-12 rounded-xl bg-rose-500 text-base font-semibold text-white transition-all hover:bg-rose-600 active:scale-95 disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-400"
+            className="col-span-3 h-12 rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#EDE3CE] disabled:text-[#A3927E]"
           >
             이 금액으로 입력하기
           </button>

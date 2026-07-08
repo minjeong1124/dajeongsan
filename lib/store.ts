@@ -289,9 +289,14 @@ export async function markViewed(pid: string, update: ViewedUpdate): Promise<Par
         .maybeSingle();
       if (error) throw error;
       if (data) return toParticipant(data as ParticipantRow);
-      // 이미 열람된 경우 기존 값 반환
-      const existing = await findParticipant(pid);
-      if (existing) return existing.participant;
+      // PATCH 결과가 비었을 때: 원격에 레코드가 있으면 "이미 열람됨"이므로 기존 값을 반환하고,
+      // 원격에 아예 없는(로컬 전용) 레코드면 로컬 갱신으로 진행한다
+      const { data: remote } = await sb
+        .from("settlement_participants")
+        .select()
+        .eq("id", pid)
+        .maybeSingle();
+      if (remote) return toParticipant(remote as ParticipantRow);
     } catch {
       // 폴백: 로컬 갱신
     }

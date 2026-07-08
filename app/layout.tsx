@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
       </head>
-      <body className="min-h-screen bg-stone-50 text-stone-900 antialiased">
+      <body className="min-h-screen bg-[#F8F1E1] text-[#4A3728] antialiased">
         <ToastProvider>
           <main className="mx-auto min-h-screen w-full max-w-md px-5 pb-16 pt-10">
             {children}

@@ -23,9 +23,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       {message && (
         <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
-          <div className="animate-toast-in flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-3 text-sm text-white shadow-xl">
+          <div className="animate-toast-in flex items-center gap-2 rounded-xl bg-[#4A3728] px-4 py-3 text-sm text-white shadow-xl">
             <svg
-              className="h-4 w-4 shrink-0 text-emerald-400"
+              className="h-4 w-4 shrink-0 text-[#9DB4E0]"
               viewBox="0 0 20 20"
               fill="currentColor"
               aria-hidden

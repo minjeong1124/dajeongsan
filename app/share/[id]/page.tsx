@@ -80,8 +80,8 @@ export default function SharePage() {
   if (status === "loading") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-rose-200 border-t-rose-500" />
-        <p className="text-sm text-stone-500">정산 요청을 불러오고 있어요</p>
+        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#7E9CD1]" />
+        <p className="text-sm text-[#8C7963]">정산 요청을 불러오고 있어요</p>
       </div>
     );
   }
@@ -90,12 +90,12 @@ export default function SharePage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
         <p className="text-3xl">🫥</p>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-[#8C7963]">
           정산 요청을 찾을 수 없어요.
           <br />
           링크가 정확한지 확인해주세요.
         </p>
-        <Link href="/" className="mt-2 text-sm font-semibold text-rose-500">
+        <Link href="/" className="mt-2 text-sm font-semibold text-[#6E8FCB]">
           새 정산 만들기
         </Link>
       </div>
@@ -105,13 +105,13 @@ export default function SharePage() {
   return (
     <div className="space-y-5">
       <header className="animate-fade-in-up">
-        <h1 className="text-2xl font-extrabold text-stone-900">정산 요청이 준비됐어요</h1>
-        <p className="mt-1.5 text-sm text-stone-500">각자 이름에 맞는 링크를 보내주세요</p>
+        <h1 className="text-2xl font-extrabold text-[#4A3728]">정산 요청이 준비됐어요</h1>
+        <p className="mt-1.5 text-sm text-[#8C7963]">각자 이름에 맞는 링크를 보내주세요</p>
       </header>
 
       {/* DB에 저장되지 못하고 로컬 폴백된 경우 — 다른 기기에서 링크가 열리지 않음을 안내 */}
       {savedRemotely === false && (
-        <p className="animate-fade-in-up rounded-xl bg-rose-50 px-4 py-3 text-xs font-medium text-rose-600">
+        <p className="animate-fade-in-up rounded-xl bg-[#F9E9C8] px-4 py-3 text-xs font-medium text-[#8A6234]">
           ⚠️ 데이터베이스에 연결되지 않아 이 정산은 지금 이 기기에서만 열 수 있어요.
           다른 기기에서도 링크가 열리려면 Supabase 스키마(database/schema.sql) 설정이
           필요해요.
@@ -120,7 +120,7 @@ export default function SharePage() {
 
       {/* 오클릭에 의한 열람 오판정을 막기 위해 개별 발송만 지원 */}
       <p
-        className="animate-fade-in-up rounded-xl bg-stone-100 px-4 py-3 text-xs text-stone-500"
+        className="animate-fade-in-up rounded-xl bg-[#F2E9D6] px-4 py-3 text-xs text-[#8C7963]"
         style={{ animationDelay: "80ms" }}
       >
         ⚠️ 링크는 각자에게 <span className="font-semibold">따로따로</span> 보내주세요.
@@ -133,35 +133,35 @@ export default function SharePage() {
           return (
             <section
               key={p.id}
-              className="animate-fade-in-up rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100"
+              className="animate-fade-in-up rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
               style={{ animationDelay: `${160 + i * 80}ms` }}
             >
-              <p className="text-sm font-bold text-stone-900">
+              <p className="text-sm font-bold text-[#4A3728]">
                 {p.name}님에게 보낼 정산 요청
               </p>
-              <p className="tnum mt-2 text-sm text-stone-600">
-                기본 정산 금액 <span className="font-bold text-stone-900">{formatWon(p.baseAmount)}</span>
+              <p className="tnum mt-2 text-sm text-[#77614E]">
+                기본 정산 금액 <span className="font-bold text-[#4A3728]">{formatWon(p.baseAmount)}</span>
               </p>
               {request.truncationEnabled && best < p.baseAmount && (
-                <p className="tnum mt-0.5 text-sm font-medium text-rose-600">
+                <p className="tnum mt-0.5 text-sm font-medium text-[#5F82C2]">
                   빠르게 확인하면 {formatWon(best)}까지 줄어들 수 있어요
                 </p>
               )}
-              <p className="mt-2 break-all rounded-lg bg-stone-50 px-3 py-2 text-xs text-stone-400">
+              <p className="mt-2 break-all rounded-lg bg-[#F8F1E1] px-3 py-2 text-xs text-[#A3927E]">
                 {linkFor(p.id)}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => shareKakao(p.name, p.id)}
-                  className="h-11 rounded-xl bg-[#FEE500] text-sm font-semibold text-stone-900 transition-all hover:brightness-95 active:scale-95"
+                  className="h-11 rounded-xl bg-[#FEE500] text-sm font-semibold text-[#4A3728] transition-all hover:brightness-95 active:scale-95"
                 >
                   카카오톡으로 보내기
                 </button>
                 <button
                   type="button"
                   onClick={() => copy(linkFor(p.id), "링크를 복사했어요")}
-                  className="h-11 rounded-xl border border-stone-200 bg-white text-sm font-semibold text-stone-700 transition-all hover:border-rose-300 hover:text-rose-500 active:scale-95"
+                  className="h-11 rounded-xl border border-[#E8DCC5] bg-white text-sm font-semibold text-[#6A5443] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
                 >
                   링크 복사
                 </button>
@@ -173,7 +173,7 @@ export default function SharePage() {
 
       <Link
         href={`/dashboard/${request.id}`}
-        className="animate-fade-in-up block text-center text-sm font-semibold text-stone-400 underline-offset-4 hover:text-rose-500 hover:underline"
+        className="animate-fade-in-up block text-center text-sm font-semibold text-[#A3927E] underline-offset-4 hover:text-[#6E8FCB] hover:underline"
         style={{ animationDelay: "480ms" }}
       >
         나중에 보낼게요

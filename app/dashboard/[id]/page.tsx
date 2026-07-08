@@ -83,8 +83,8 @@ export default function DashboardPage() {
   if (status === "loading") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-rose-200 border-t-rose-500" />
-        <p className="text-sm text-stone-500">정산 현황을 불러오고 있어요</p>
+        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#7E9CD1]" />
+        <p className="text-sm text-[#8C7963]">정산 현황을 불러오고 있어요</p>
       </div>
     );
   }
@@ -93,12 +93,12 @@ export default function DashboardPage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
         <p className="text-3xl">🫥</p>
-        <p className="text-sm text-stone-500">
+        <p className="text-sm text-[#8C7963]">
           정산 요청을 찾을 수 없어요.
           <br />
           링크가 정확한지 확인해주세요.
         </p>
-        <Link href="/" className="mt-2 text-sm font-semibold text-rose-500">
+        <Link href="/" className="mt-2 text-sm font-semibold text-[#6E8FCB]">
           새 정산 만들기
         </Link>
       </div>
@@ -108,8 +108,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       <header className="animate-fade-in-up">
-        <h1 className="text-2xl font-extrabold text-stone-900">정산 현황</h1>
-        <p className="mt-1.5 text-sm text-stone-500">
+        <h1 className="text-2xl font-extrabold text-[#4A3728]">정산 현황</h1>
+        <p className="mt-1.5 text-sm text-[#8C7963]">
           누가 금액을 확인했는지 한눈에 볼 수 있어요
         </p>
       </header>
@@ -121,33 +121,33 @@ export default function DashboardPage() {
           return (
             <section
               key={p.id}
-              className="animate-fade-in-up rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100"
+              className="animate-fade-in-up rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
               style={{ animationDelay: `${80 + i * 80}ms` }}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-bold text-stone-900">{p.name}</p>
+                <p className="text-sm font-bold text-[#4A3728]">{p.name}</p>
                 {viewed ? (
-                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                  <span className="rounded-full bg-[#E1EAF9] px-2.5 py-0.5 text-xs font-medium text-[#4A6FB5]">
                     확인함
                   </span>
                 ) : (
-                  <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-500">
+                  <span className="rounded-full bg-[#F2E9D6] px-2.5 py-0.5 text-xs font-medium text-[#8C7963]">
                     미확인
                   </span>
                 )}
               </div>
 
-              <p className="tnum mt-2 text-lg font-extrabold text-stone-900">
+              <p className="tnum mt-2 text-lg font-extrabold text-[#4A3728]">
                 {formatWon(p.finalAmount ?? p.baseAmount)}
                 {!viewed && (
-                  <span className="ml-1 text-xs font-medium text-stone-400">(기본 금액)</span>
+                  <span className="ml-1 text-xs font-medium text-[#A3927E]">(기본 금액)</span>
                 )}
               </p>
 
               {viewed && (
-                <p className="tnum mt-0.5 text-xs text-stone-500">
+                <p className="tnum mt-0.5 text-xs text-[#8C7963]">
                   {cut > 0 ? (
-                    <span className="font-semibold text-rose-600">
+                    <span className="font-semibold text-[#5F82C2]">
                       {formatWon(cut)} 덜어줌 ·
                     </span>
                   ) : (
@@ -161,7 +161,7 @@ export default function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => reshare(p.id)}
-                  className="mt-3 h-11 w-full rounded-xl border border-stone-200 bg-white text-sm font-semibold text-stone-700 transition-all hover:border-rose-300 hover:text-rose-500 active:scale-95"
+                  className="mt-3 h-11 w-full rounded-xl border border-[#E8DCC5] bg-white text-sm font-semibold text-[#6A5443] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
                 >
                   다시 공유
                 </button>
@@ -173,11 +173,11 @@ export default function DashboardPage() {
 
       {/* 하단 섹션 — 배려 기록 (요청자 본인에게만 의미 있는 정보) */}
       <section
-        className="animate-fade-in-up rounded-2xl bg-rose-50 p-4"
+        className="animate-fade-in-up rounded-2xl bg-[#EDF3FC] p-4"
         style={{ animationDelay: "400ms" }}
       >
-        <p className="text-sm font-bold text-stone-900">배려 기록</p>
-        <p className="mt-0.5 text-xs text-stone-500">
+        <p className="text-sm font-bold text-[#4A3728]">배려 기록</p>
+        <p className="mt-0.5 text-xs text-[#8C7963]">
           이번 정산까지 내가 덜어준 금액을 볼 수 있어요
         </p>
 
@@ -186,35 +186,35 @@ export default function DashboardPage() {
             {careRecords.map((record) => (
               <li
                 key={record.name}
-                className="tnum rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-stone-800"
+                className="tnum rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-[#5A4636]"
               >
                 지금까지 <span className="font-bold">{record.name}</span>님에게{" "}
-                <span className="font-bold text-rose-600">{formatWon(record.totalCut)}</span>
+                <span className="font-bold text-[#5F82C2]">{formatWon(record.totalCut)}</span>
                 을 덜어줬어요
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mt-3 rounded-xl bg-white px-3 py-4 text-center text-sm text-stone-400">
+          <p className="mt-3 rounded-xl bg-white px-3 py-4 text-center text-sm text-[#A3927E]">
             아직 배려 기록이 없어요.
             <br />
             빠르게 확인한 친구에게 덜어준 금액이 생기면 여기에서 볼 수 있어요.
           </p>
         )}
 
-        <p className="mt-2 text-xs text-stone-400">🔒 이 기록은 나에게만 보여요.</p>
+        <p className="mt-2 text-xs text-[#A3927E]">🔒 이 기록은 나에게만 보여요.</p>
       </section>
 
       <div className="animate-fade-in-up space-y-3" style={{ animationDelay: "480ms" }}>
         <Link
           href="/"
-          className="flex h-12 w-full items-center justify-center rounded-xl bg-rose-500 text-base font-semibold text-white transition-all hover:bg-rose-600 active:scale-95"
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
         >
           새 정산 만들기
         </Link>
         <Link
           href="/"
-          className="block text-center text-sm font-semibold text-stone-400 underline-offset-4 hover:text-rose-500 hover:underline"
+          className="block text-center text-sm font-semibold text-[#A3927E] underline-offset-4 hover:text-[#6E8FCB] hover:underline"
         >
           기존 사용자예요!
         </Link>

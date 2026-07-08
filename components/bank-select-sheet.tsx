@@ -22,7 +22,7 @@ export function BankSelectSheet({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-end justify-center bg-stone-900/30"
+      className="fixed inset-0 z-40 flex items-end justify-center bg-[#4A3728]/30"
       onClick={onClose}
     >
       <div
@@ -30,11 +30,11 @@ export function BankSelectSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-sm font-semibold text-stone-700">은행을 선택해주세요</p>
+          <p className="text-sm font-semibold text-[#6A5443]">은행을 선택해주세요</p>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-3 py-2 text-sm text-stone-400 active:scale-95"
+            className="rounded-lg px-3 py-2 text-sm text-[#A3927E] active:scale-95"
           >
             닫기
           </button>
@@ -46,11 +46,11 @@ export function BankSelectSheet({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="은행명을 검색해주세요"
-          className="mb-3 h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+          className="mb-3 h-12 w-full rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
         />
 
         {filtered.length === 0 && (
-          <p className="rounded-xl bg-stone-50 px-4 py-6 text-center text-sm text-stone-400">
+          <p className="rounded-xl bg-[#F8F1E1] px-4 py-6 text-center text-sm text-[#A3927E]">
             🔍 검색 결과가 없어요. 은행명을 다시 확인해주세요
           </p>
         )}
@@ -66,8 +66,8 @@ export function BankSelectSheet({
               }}
               className={`flex h-12 items-center gap-2.5 rounded-xl border px-3 text-sm font-medium transition-all active:scale-95 ${
                 selectedCode === bank.code
-                  ? "border-rose-400 bg-rose-50 text-rose-600"
-                  : "border-stone-200 bg-white text-stone-700 hover:border-rose-200"
+                  ? "border-[#8FA9DA] bg-[#EDF3FC] text-[#5F82C2]"
+                  : "border-[#E8DCC5] bg-white text-[#6A5443] hover:border-[#C9D7F0]"
               }`}
             >
               <BankLogo bank={bank} size={26} />

@@ -37,7 +37,7 @@ export function CountUpAmount({
   }, [from, to]);
 
   return (
-    <p className="tnum text-4xl font-extrabold text-stone-900">
+    <p className="tnum text-4xl font-extrabold text-[#4A3728]">
       {formatWon(value)}
       <span className="text-xl font-bold">{suffix}</span>
     </p>

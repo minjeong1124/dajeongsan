@@ -178,17 +178,17 @@ export default function CreatePage() {
     <div className="space-y-5">
       {/* (재사용자에게만) 상단 배너 — 배려 모드 OFF + 받은 배려 기록이 있을 때만 노출 */}
       {receivedCare > 0 && !careMode && (
-        <section className="animate-fade-in-up rounded-2xl bg-rose-50 p-4">
-          <p className="text-xs font-semibold text-rose-500">지금까지 받은 배려</p>
-          <p className="mt-1 text-sm font-medium text-stone-800">
+        <section className="animate-fade-in-up rounded-2xl bg-[#EDF3FC] p-4">
+          <p className="text-xs font-semibold text-[#6E8FCB]">지금까지 받은 배려</p>
+          <p className="mt-1 text-sm font-medium text-[#5A4636]">
             친구들이 지난 정산에서 총{" "}
-            <span className="tnum font-bold text-rose-600">{formatWon(receivedCare)}</span>을
+            <span className="tnum font-bold text-[#5F82C2]">{formatWon(receivedCare)}</span>을
             덜어줬어요
           </p>
           <button
             type="button"
             onClick={() => toggleCareMode(true)}
-            className="mt-3 rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-rose-600 active:scale-95"
+            className="mt-3 rounded-xl bg-[#7E9CD1] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
           >
             나도 배려 모드 써보기
           </button>
@@ -196,26 +196,26 @@ export default function CreatePage() {
       )}
 
       <header className="animate-fade-in-up">
-        <h1 className="text-2xl font-extrabold text-stone-900">
+        <h1 className="text-2xl font-extrabold text-[#4A3728]">
           오늘 모임, 얼마씩 정산할까요?
         </h1>
-        <p className="mt-1.5 text-sm text-stone-500">
+        <p className="mt-1.5 text-sm text-[#8C7963]">
           금액은 정확하게, 요청은 조금 더 다정하게 도와드릴게요
         </p>
       </header>
 
       {/* 요청자 정보 — 참여자 화면(3-3)의 요청자 이름·계좌 노출에 필요 */}
       <section
-        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100"
+        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
         style={{ animationDelay: "80ms" }}
       >
-        <p className="text-sm font-semibold text-stone-700">내 정보</p>
+        <p className="text-sm font-semibold text-[#6A5443]">내 정보</p>
         <input
           type="text"
           value={requesterName}
           onChange={(e) => setRequesterName(e.target.value)}
           placeholder="내 이름을 입력해주세요"
-          className="h-12 w-full rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+          className="h-12 w-full rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
         />
         {/* 은행 선택란 + 계좌번호 입력란 — 분리된 2개 필드, DB에는 은행 코드로 저장 */}
         <div className="flex items-center gap-2">
@@ -224,8 +224,8 @@ export default function CreatePage() {
             onClick={() => setShowBankSheet(true)}
             className={`flex h-12 w-[42%] shrink-0 items-center gap-2 rounded-xl border px-3 text-sm transition-all active:scale-95 ${
               bankCode
-                ? "border-stone-200 bg-white font-semibold text-stone-800"
-                : "border-stone-200 bg-white text-stone-400"
+                ? "border-[#E8DCC5] bg-white font-semibold text-[#5A4636]"
+                : "border-[#E8DCC5] bg-white text-[#A3927E]"
             }`}
           >
             {(() => {
@@ -237,7 +237,7 @@ export default function CreatePage() {
                 </>
               ) : (
                 <>
-                  <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs">
+                  <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F2E9D6] text-xs">
                     🏦
                   </span>
                   은행 선택
@@ -251,19 +251,19 @@ export default function CreatePage() {
             value={account}
             onChange={(e) => setAccount(e.target.value.replace(/[^\d-]/g, ""))}
             placeholder="계좌번호를 입력해주세요"
-            className="tnum h-12 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+            className="tnum h-12 min-w-0 flex-1 rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
           />
         </div>
       </section>
 
       {/* 총액 + 분배 방식 */}
       <section
-        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100"
+        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
         style={{ animationDelay: "160ms" }}
       >
-        <p className="text-sm font-semibold text-stone-700">정산 금액</p>
+        <p className="text-sm font-semibold text-[#6A5443]">정산 금액</p>
 
-        <div className="grid grid-cols-2 gap-2 rounded-xl bg-stone-100 p-1">
+        <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#F2E9D6] p-1">
           {(
             [
               ["equal", "N분의 1로 나누기"],
@@ -276,15 +276,15 @@ export default function CreatePage() {
               onClick={() => selectSplitMode(mode)}
               className={`h-10 rounded-lg text-sm font-semibold transition-all active:scale-95 ${
                 splitMode === mode
-                  ? "bg-white text-rose-600 shadow-sm"
-                  : "text-stone-500"
+                  ? "bg-white text-[#5F82C2] shadow-sm"
+                  : "text-[#8C7963]"
               }`}
             >
               {label}
             </button>
           ))}
         </div>
-        <p className="text-xs text-stone-400">
+        <p className="text-xs text-[#A3927E]">
           {splitMode === "equal"
             ? "참여자 수에 맞춰 자동으로 나눠드려요"
             : "사람마다 다른 금액을 직접 입력할 수 있어요"}
@@ -297,7 +297,7 @@ export default function CreatePage() {
               <button
                 type="button"
                 onClick={() => setShowCalculator(true)}
-                className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 text-sm font-medium text-stone-600 transition-all hover:border-rose-300 hover:text-rose-500 active:scale-95"
+                className="flex h-12 shrink-0 items-center gap-1.5 rounded-xl border border-[#E8DCC5] bg-white px-3.5 text-sm font-medium text-[#77614E] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
               >
                 🧮 계산기 사용
               </button>
@@ -307,10 +307,10 @@ export default function CreatePage() {
                 value={total}
                 onChange={(e) => setTotal(formatInput(e.target.value))}
                 placeholder="총 결제 금액을 입력해주세요"
-                className="tnum h-12 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                className="tnum h-12 min-w-0 flex-1 rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
               />
             </div>
-            <p className="text-xs text-stone-400">
+            <p className="text-xs text-[#A3927E]">
               금액이 복잡하면 계산기로 바로 계산해서 입력할 수 있어요
             </p>
           </>
@@ -320,13 +320,13 @@ export default function CreatePage() {
       {/* 참여자 이름 입력 — 동적 추가/삭제 리스트 */}
       <section
         ref={participantsSectionRef}
-        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-stone-100"
+        className="animate-fade-in-up space-y-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
         style={{ animationDelay: "240ms" }}
       >
-        <p className="text-sm font-semibold text-stone-700">함께 정산할 사람</p>
+        <p className="text-sm font-semibold text-[#6A5443]">함께 정산할 사람</p>
 
         {participants.length === 0 && (
-          <p className="rounded-xl bg-stone-50 px-4 py-6 text-center text-sm text-stone-400">
+          <p className="rounded-xl bg-[#F8F1E1] px-4 py-6 text-center text-sm text-[#A3927E]">
             🙌 정산할 사람을 1명 이상 추가해주세요
           </p>
         )}
@@ -338,7 +338,7 @@ export default function CreatePage() {
               value={p.name}
               onChange={(e) => updateParticipant(p.key, { name: e.target.value })}
               placeholder="이름을 입력해주세요"
-              className="h-12 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-4 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              className="h-12 min-w-0 flex-1 rounded-xl border border-[#E8DCC5] bg-white px-4 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
             />
             {splitMode === "custom" && (
               <input
@@ -349,7 +349,7 @@ export default function CreatePage() {
                   updateParticipant(p.key, { amount: formatInput(e.target.value) })
                 }
                 placeholder="금액"
-                className="tnum h-12 w-28 rounded-xl border border-stone-200 bg-white px-3 text-base outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                className="tnum h-12 w-28 rounded-xl border border-[#E8DCC5] bg-white px-3 text-base outline-none transition-all focus:border-[#8FA9DA] focus:ring-2 focus:ring-[#E3EBF8]"
               />
             )}
             <button
@@ -357,7 +357,7 @@ export default function CreatePage() {
               onClick={() =>
                 setParticipants((prev) => prev.filter((x) => x.key !== p.key))
               }
-              className="h-12 shrink-0 rounded-xl px-3 text-sm text-stone-400 transition-all hover:text-rose-500 active:scale-95"
+              className="h-12 shrink-0 rounded-xl px-3 text-sm text-[#A3927E] transition-all hover:text-[#6E8FCB] active:scale-95"
             >
               삭제
             </button>
@@ -369,13 +369,13 @@ export default function CreatePage() {
           onClick={() =>
             setParticipants((prev) => [...prev, { key: ++draftKey, name: "", amount: "" }])
           }
-          className="h-12 w-full rounded-xl border border-dashed border-stone-300 text-sm font-semibold text-stone-500 transition-all hover:border-rose-300 hover:text-rose-500 active:scale-95"
+          className="h-12 w-full rounded-xl border border-dashed border-[#DCCFB8] text-sm font-semibold text-[#8C7963] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
         >
           + 참여자 추가
         </button>
 
         {splitMode === "equal" && totalValue > 0 && namedParticipants.length > 0 && (
-          <p className="tnum text-xs text-stone-400">
+          <p className="tnum text-xs text-[#A3927E]">
             1인당 약 {formatWon(splitEqually(totalValue, namedParticipants.length)[0])}씩
             요청돼요
           </p>
@@ -384,13 +384,13 @@ export default function CreatePage() {
 
       {/* 절삭 토글 카드 — 빠른 정산 배려 모드 (기본 off) */}
       <section
-        className="animate-fade-in-up rounded-2xl bg-rose-50 p-4"
+        className="animate-fade-in-up rounded-2xl bg-[#EDF3FC] p-4"
         style={{ animationDelay: "320ms" }}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-bold text-stone-900">빠른 정산 배려 모드</p>
-            <p className="mt-1 text-sm text-stone-600">
+            <p className="text-sm font-bold text-[#4A3728]">빠른 정산 배려 모드</p>
+            <p className="mt-1 text-sm text-[#77614E]">
               빠르게 확인해준 사람에게 끝자리를 조금 덜어 요청할 수 있어요
             </p>
           </div>
@@ -400,7 +400,7 @@ export default function CreatePage() {
             aria-checked={careMode}
             onClick={() => toggleCareMode(!careMode)}
             className={`relative h-7 w-12 shrink-0 rounded-full transition-all ${
-              careMode ? "bg-rose-500" : "bg-stone-300"
+              careMode ? "bg-[#7E9CD1]" : "bg-[#DCCFB8]"
             }`}
           >
             <span
@@ -412,12 +412,12 @@ export default function CreatePage() {
         </div>
 
         {careMode && (
-          <p className="animate-fade-in-up tnum mt-3 rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-rose-600">
+          <p className="animate-fade-in-up tnum mt-3 rounded-xl bg-white px-3 py-2.5 text-sm font-medium text-[#5F82C2]">
             예) {formatWon(previewBase)} →{" "}
             {formatWon(previewBase - (previewBase % 1000))}만 보내주세요 :)
           </p>
         )}
-        <p className="mt-2 text-xs text-stone-400">
+        <p className="mt-2 text-xs text-[#A3927E]">
           요청마다 고민하지 않아도, 정해진 기준으로 자동 적용돼요
         </p>
       </section>
@@ -425,13 +425,13 @@ export default function CreatePage() {
       {/* CTA */}
       <div className="animate-fade-in-up space-y-2" style={{ animationDelay: "400ms" }}>
         {disabledHint && (
-          <p className="text-center text-xs text-stone-400">{disabledHint}</p>
+          <p className="text-center text-xs text-[#A3927E]">{disabledHint}</p>
         )}
         <button
           type="button"
           onClick={submit}
           disabled={!canSubmit}
-          className="h-12 w-full rounded-xl bg-rose-500 text-base font-semibold text-white transition-all hover:bg-rose-600 active:scale-95 disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-stone-400"
+          className="h-12 w-full rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#EDE3CE] disabled:text-[#A3927E]"
         >
           {submitting ? (
             <span className="inline-flex items-center gap-2">
