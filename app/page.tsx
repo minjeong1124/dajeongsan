@@ -179,7 +179,7 @@ export default function LandingPage() {
       {/* ── 5. 행동 장벽 제거: "한 번 만들어볼까?" ── */}
       <section className="animate-fade-in-up" style={{ animationDelay: "400ms" }}>
         <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
-          시작은 1분이면 돼요
+          시작은 20초면 돼요
         </h2>
         <ol className="mt-5 space-y-3">
           {[
