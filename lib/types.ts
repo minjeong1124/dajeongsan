@@ -54,3 +54,13 @@ export interface CareRecord {
   name: string;
   totalCut: number;
 }
+
+/** 내가 참여자로 확인한 정산 한 건 (통합 현황 허브의 "내가 확인한 정산" 구역) */
+export interface PaymentRecord {
+  participantId: string;
+  requesterName: string;
+  baseAmount: number;
+  finalAmount: number;
+  cutAmount: number;
+  viewedAt: string;
+}

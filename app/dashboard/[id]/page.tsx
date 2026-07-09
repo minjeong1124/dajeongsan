@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useToast } from "@/components/toast";
-import { getToken, saveLastRequestId } from "@/lib/identity";
+import { getToken } from "@/lib/identity";
 import { formatWon } from "@/lib/money";
 import { careGiven, getRequest } from "@/lib/store";
 import { getSupabase } from "@/lib/supabase";
@@ -31,8 +31,6 @@ export default function DashboardPage() {
       .then((req) => {
         setRequest(req);
         setStatus(req ? "ready" : "notfound");
-        // 내가 만든 정산이면 GNB [정산 현황]이 이 대시보드를 가리키도록 갱신
-        if (req && req.requesterToken === getToken()) saveLastRequestId(req.id);
       })
       .catch(() => setStatus("notfound"));
     careGiven(getToken())
@@ -110,7 +108,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       <header className="animate-fade-in-up">
-        <h1 className="text-2xl font-extrabold text-[#4A3728]">정산 현황</h1>
+        <Link
+          href="/dashboard"
+          className="text-xs font-semibold text-[#A3927E] hover:text-[#6E8FCB]"
+        >
+          ← 내 정산 현황
+        </Link>
+        <h1 className="mt-2 text-2xl font-extrabold text-[#4A3728]">정산 현황</h1>
         <p className="mt-1.5 text-sm text-[#8C7963]">
           누가 금액을 확인했는지 한눈에 볼 수 있어요
         </p>

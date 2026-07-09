@@ -11,6 +11,7 @@ import type {
   CareRecord,
   CreateRequestInput,
   Participant,
+  PaymentRecord,
   SettlementRequest,
   ViewedUpdate,
 } from "./types";
@@ -302,6 +303,82 @@ export async function markViewed(pid: string, update: ViewedUpdate): Promise<Par
     }
   }
   return localMarkViewed(pid, update);
+}
+
+/** 내가 요청자로 만든 정산 목록 — 원격+로컬 병합, 최신순 (통합 현황 허브) */
+export async function listMyRequests(token: string): Promise<SettlementRequest[]> {
+  const results = new Map<string, SettlementRequest>();
+  for (const request of Object.values(loadLocal())) {
+    if (request.requesterToken === token) results.set(request.id, request);
+  }
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      const { data } = await sb
+        .from("settlement_requests")
+        .select("*, settlement_participants(*)")
+        .eq("requester_token", token);
+      type Row = RequestRow & { settlement_participants: ParticipantRow[] | null };
+      for (const row of (data ?? []) as Row[]) {
+        results.set(row.id, toRequest(row, row.settlement_participants ?? []));
+      }
+    } catch {
+      // 원격 실패 시 로컬 목록만 사용
+    }
+  }
+  return [...results.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/** 내가 참여자로 확인한 정산 목록 — 원격+로컬 병합, 최신 열람순 (통합 현황 허브) */
+export async function listMyPayments(
+  token: string,
+  last4: string | null
+): Promise<PaymentRecord[]> {
+  const results = new Map<string, PaymentRecord>();
+  for (const request of Object.values(loadLocal())) {
+    for (const p of request.participants) {
+      const mine = p.payerToken === token || (last4 !== null && p.payerLast4 === last4);
+      if (mine && p.viewedAt) {
+        results.set(p.id, {
+          participantId: p.id,
+          requesterName: request.requesterName,
+          baseAmount: p.baseAmount,
+          finalAmount: p.finalAmount ?? p.baseAmount,
+          cutAmount: p.cutAmount ?? 0,
+          viewedAt: p.viewedAt,
+        });
+      }
+    }
+  }
+  const sb = getSupabase();
+  if (sb) {
+    try {
+      let query = sb
+        .from("settlement_participants")
+        .select("*, settlement_requests(requester_name)")
+        .not("viewed_at", "is", null);
+      query = last4
+        ? query.or(`payer_token.eq.${token},payer_last4.eq.${last4}`)
+        : query.eq("payer_token", token);
+      const { data } = await query;
+      type Row = ParticipantRow & {
+        settlement_requests: { requester_name: string } | null;
+      };
+      for (const row of (data ?? []) as Row[]) {
+        results.set(row.id, {
+          participantId: row.id,
+          requesterName: row.settlement_requests?.requester_name ?? "알 수 없는 요청자",
+          baseAmount: row.base_amount,
+          finalAmount: row.final_amount ?? row.base_amount,
+          cutAmount: row.cut_amount ?? 0,
+          viewedAt: row.viewed_at!,
+        });
+      }
+    } catch {
+      // 원격 실패 시 로컬 목록만 사용
+    }
+  }
+  return [...results.values()].sort((a, b) => b.viewedAt.localeCompare(a.viewedAt));
 }
 
 /** 내가 요청자로서 참여자들에게 덜어준(배려한) 누적 금액 — 관계(이름)별 집계 */
