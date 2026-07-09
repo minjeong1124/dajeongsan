@@ -173,7 +173,7 @@ export default function SharePage() {
 
       <Link
         href={`/dashboard/${request.id}`}
-        className="animate-fade-in-up flex h-12 w-full items-center justify-center rounded-xl border border-[#E8DCC5] bg-white text-sm font-semibold text-[#6A5443] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
+        className="animate-fade-in-up flex h-12 w-full items-center justify-center rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95"
         style={{ animationDelay: "440ms" }}
       >
         정산 현황 바로가기
