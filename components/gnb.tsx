@@ -12,6 +12,9 @@ import { LogoMark } from "@/components/logo-mark";
 export function Gnb() {
   const pathname = usePathname();
 
+  // 메인 랜딩(/)에서는 GNB를 노출하지 않는다 (그 외 모든 화면에서만 제공)
+  if (pathname === "/") return null;
+
   const linkClass = (active: boolean) =>
     `flex h-12 items-center text-sm font-semibold transition-colors ${
       active ? "text-[#5F82C2]" : "text-[#8C7963] hover:text-[#6E8FCB]"
