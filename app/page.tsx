@@ -10,19 +10,17 @@ export default function LandingPage() {
           <LogoMark />
         </div>
         <p className="mt-4 text-sm font-semibold text-[#6E8FCB]">
-          정산 요청이 민망한 사람들을 위한 서비스, 다정산
+          다정한 사이 정산이 애매할 때, 다정산
         </p>
         <h1 className="mt-3 text-3xl font-extrabold leading-snug text-[#4A3728]">
-          쪼잔해 보일 걱정 없이
+          끝자리 고민 없이
           <br />
-          정산 요청을 보내세요
+          20초 만에 정산 요청 보내기
         </h1>
         <p className="mx-auto mt-4 max-w-sm text-[15px] leading-relaxed text-[#8C7963]">
-          &lsquo;26,437원 보내줘&rsquo;라고 쓰다가 지워본 적 있다면 —
+          빠르게 확인한 친구에게는 끝자리를 덜어주고,
           <br />
-          끝자리를 살짝 덜어내는 것만으로,
-          <br />
-          같은 요청도 배려가 됩니다.
+          정산 요청은 조금 더 부드럽게 전달해요.
         </p>
         <Link
           href="/create"
@@ -31,20 +29,20 @@ export default function LandingPage() {
           정산 요청 만들기
         </Link>
         <p className="mt-3 text-xs text-[#A3927E]">
-          회원가입도, 앱 설치도 없어요. 1분이면 충분해요.
+          회원가입 없이 바로 시작할 수 있어요
         </p>
       </header>
 
       {/* ── 1. 공감: "맞아, 정확히 요청하는 거 은근 민망했어" ── */}
       <section className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
         <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
-          이런 순간, 있지 않았나요?
+          정산할 때, 이런 순간 있지 않나요?
         </h2>
         <div className="mt-5 space-y-3">
           {[
             ["💸", "437원까지 정확히 받자니, 너무 따지는 사람 같아 보이고"],
             ["😶", "확인 안 하는 친구에게 다시 말 꺼내자니 그것도 민망하고"],
-            ["🫠", "결국 “대충 보내줘” 하고 나 혼자 손해 보며 넘어가고"],
+            ["🫠", "결국 고민하다가 나 혼자 손해 보며 넘어가고"],
           ].map(([emoji, text]) => (
             <div
               key={text}
@@ -72,11 +70,13 @@ export default function LandingPage() {
         <div className="mt-6 space-y-3">
           {/* Before */}
           <div className="rounded-2xl bg-[#F2E9D6] p-4">
-            <p className="text-xs font-semibold text-[#A3927E]">그냥 보내면</p>
+            <p className="text-xs font-semibold text-[#A3927E]">Before</p>
             <p className="tnum mt-1.5 text-base font-bold text-[#77614E]">
-              “26,437원 보내줘.”
+              26,437원 보내줘
             </p>
-            <p className="mt-1 text-xs text-[#A3927E]">…정확하지만, 어쩐지 차가워요</p>
+            <p className="mt-1 text-xs text-[#A3927E]">
+              정확하지만, 어쩐지 차갑고 계산적으로 보일까 신경 쓰여요.
+            </p>
           </div>
           {/* After */}
           <div className="relative rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#D4DFF3]">
@@ -88,7 +88,9 @@ export default function LandingPage() {
               끝자리는 내가 덜었어 :)”
             </p>
             <p className="mt-1 text-xs text-[#8C7963]">
-              같은 정산인데, 배려가 먼저 도착해요
+              빠르게 확인해준 마음에
+              <br />
+              끝자리를 덜었어요.
             </p>
             <span className="absolute -right-1 -top-3 rounded-full bg-[#F9E9C8] px-2.5 py-1 text-xs font-bold text-[#8A6234]">
               437원 다정 혜택
@@ -106,7 +108,9 @@ export default function LandingPage() {
       {/* ── 3. 독촉이 아닌 이유: "빨리 확인하면 혜택이 생기니까" ── */}
       <section className="animate-fade-in-up" style={{ animationDelay: "240ms" }}>
         <h2 className="text-center text-xl font-extrabold text-[#4A3728]">
-          빨리 확인할수록, 혜택은 커져요
+          빠르게 확인할수록,
+          <br />
+          끝자리가 더 가벼워져요
         </h2>
         <div className="mt-5 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#F0E6D2]">
           {[
