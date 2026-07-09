@@ -83,7 +83,7 @@ export default function DashboardPage() {
   if (status === "loading") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#7E9CD1]" />
+        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#5F82C2]" />
         <p className="text-sm text-[#8C7963]">정산 현황을 불러오고 있어요</p>
       </div>
     );
@@ -214,7 +214,7 @@ export default function DashboardPage() {
       <div className="animate-fade-in-up space-y-3" style={{ animationDelay: "480ms" }}>
         <Link
           href="/create"
-          className="flex h-12 w-full items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95"
         >
           새 정산 만들기
         </Link>

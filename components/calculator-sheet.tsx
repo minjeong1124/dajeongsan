@@ -124,7 +124,7 @@ export function CalculatorSheet({
             type="button"
             onClick={confirm}
             disabled={preview === null || preview <= 0}
-            className="col-span-3 h-12 rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#EDE3CE] disabled:text-[#A3927E]"
+            className="col-span-3 h-12 rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#E0D7C6] disabled:text-[#8C7963]"
           >
             이 금액으로 입력하기
           </button>

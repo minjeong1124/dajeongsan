@@ -188,7 +188,7 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={() => toggleCareMode(true)}
-            className="mt-3 rounded-xl bg-[#7E9CD1] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
+            className="mt-3 rounded-xl bg-[#5F82C2] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95"
           >
             나도 배려 모드 써보기
           </button>
@@ -286,7 +286,7 @@ export default function CreatePage() {
         </div>
         <p className="text-xs text-[#A3927E]">
           {splitMode === "equal"
-            ? "참여자 수에 맞춰 자동으로 나눠드려요"
+            ? "나를 포함한 인원수로 자동으로 나눠드려요"
             : "사람마다 다른 금액을 직접 입력할 수 있어요"}
         </p>
 
@@ -376,8 +376,8 @@ export default function CreatePage() {
 
         {splitMode === "equal" && totalValue > 0 && namedParticipants.length > 0 && (
           <p className="tnum text-xs text-[#A3927E]">
-            1인당 약 {formatWon(splitEqually(totalValue, namedParticipants.length)[0])}씩
-            요청돼요
+            나 포함 {namedParticipants.length + 1}명 기준, 1인당 약{" "}
+            {formatWon(splitEqually(totalValue, namedParticipants.length)[0])}씩 요청돼요
           </p>
         )}
       </section>
@@ -400,7 +400,7 @@ export default function CreatePage() {
             aria-checked={careMode}
             onClick={() => toggleCareMode(!careMode)}
             className={`relative h-7 w-12 shrink-0 rounded-full transition-all ${
-              careMode ? "bg-[#7E9CD1]" : "bg-[#DCCFB8]"
+              careMode ? "bg-[#5F82C2]" : "bg-[#DCCFB8]"
             }`}
           >
             <span
@@ -431,7 +431,7 @@ export default function CreatePage() {
           type="button"
           onClick={submit}
           disabled={!canSubmit}
-          className="h-12 w-full rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#EDE3CE] disabled:text-[#A3927E]"
+          className="h-12 w-full rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#E0D7C6] disabled:text-[#8C7963]"
         >
           {submitting ? (
             <span className="inline-flex items-center gap-2">

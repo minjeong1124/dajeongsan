@@ -116,7 +116,7 @@ export function ParticipantView() {
   if (phase === "loading") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#7E9CD1]" />
+        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#5F82C2]" />
         <p className="text-sm text-[#8C7963]">정산 내용을 확인하고 있어요</p>
       </div>
     );
@@ -178,7 +178,7 @@ export function ParticipantView() {
             type="button"
             onClick={() => proceed(true)}
             disabled={!valid}
-            className="h-12 w-full rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#EDE3CE] disabled:text-[#A3927E]"
+            className="h-12 w-full rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95 disabled:cursor-not-allowed disabled:bg-[#E0D7C6] disabled:text-[#8C7963]"
           >
             계속하기
           </button>
@@ -280,7 +280,7 @@ export function ParticipantView() {
         <button
           type="button"
           onClick={copyAccount}
-          className="mt-4 h-12 w-full rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
+          className="mt-4 h-12 w-full rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95"
         >
           계좌번호 복사하기
         </button>

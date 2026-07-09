@@ -41,14 +41,14 @@ export function bestCaseAmount(baseAmount: number, truncationEnabled: boolean): 
 }
 
 /**
- * N분의1 균등분배 — 1원 단위 잔차는 마지막 참여자가 흡수해 합계가 총액과 일치하도록 처리
+ * 요청자 포함 N분의1 균등분배 — 참여자들의 몫 배열을 반환한다.
+ * 분모는 (참여자 수 + 요청자 1명)이며, 1원 단위 잔차는 요청자가 부담한다.
+ * 예) 총액 35,000원 + 참여자 1명 → 참여자 몫 17,500원 (요청자 17,500원)
  */
-export function splitEqually(total: number, count: number): number[] {
-  if (count <= 0) return [];
-  const base = Math.floor(total / count);
-  const amounts = Array.from({ length: count }, () => base);
-  amounts[count - 1] = total - base * (count - 1);
-  return amounts;
+export function splitEqually(total: number, participantCount: number): number[] {
+  if (participantCount <= 0) return [];
+  const share = Math.floor(total / (participantCount + 1));
+  return Array.from({ length: participantCount }, () => share);
 }
 
 /** 배려형 문구 자동 생성 — 금액에 따라 일관되게 선택 */

@@ -80,7 +80,7 @@ export default function SharePage() {
   if (status === "loading") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
-        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#7E9CD1]" />
+        <span className="h-8 w-8 animate-spin rounded-full border-[3px] border-[#C9D7F0] border-t-[#5F82C2]" />
         <p className="text-sm text-[#8C7963]">정산 요청을 불러오고 있어요</p>
       </div>
     );
@@ -170,6 +170,14 @@ export default function SharePage() {
           );
         })}
       </div>
+
+      <Link
+        href={`/dashboard/${request.id}`}
+        className="animate-fade-in-up flex h-12 w-full items-center justify-center rounded-xl border border-[#E8DCC5] bg-white text-sm font-semibold text-[#6A5443] transition-all hover:border-[#AFC3E8] hover:text-[#6E8FCB] active:scale-95"
+        style={{ animationDelay: "440ms" }}
+      >
+        정산 현황 바로가기
+      </Link>
 
       <Link
         href={`/dashboard/${request.id}`}

@@ -22,13 +22,7 @@ export default function LandingPage() {
           <br />
           정산 요청은 조금 더 부드럽게 전달해요.
         </p>
-        <Link
-          href="/create"
-          className="mt-7 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
-        >
-          정산 요청 만들기
-        </Link>
-        <p className="mt-3 text-xs text-[#A3927E]">
+        <p className="mt-6 text-xs text-[#A3927E]">
           회원가입 없이 바로 시작할 수 있어요
         </p>
       </header>
@@ -191,7 +185,7 @@ export default function LandingPage() {
               key={step}
               className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-[#F0E6D2]"
             >
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7E9CD1] text-xs font-bold text-white">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#5F82C2] text-xs font-bold text-white">
                 {i + 1}
               </span>
               <p className="text-sm leading-relaxed text-[#5A4636]">{step}</p>
@@ -217,7 +211,7 @@ export default function LandingPage() {
         </p>
         <Link
           href="/create"
-          className="mt-6 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-xl bg-[#7E9CD1] text-base font-semibold text-white transition-all hover:bg-[#6B8AC4] active:scale-95"
+          className="mt-6 inline-flex h-12 w-full max-w-xs items-center justify-center rounded-xl bg-[#5F82C2] text-base font-semibold text-white transition-all hover:bg-[#4A6FB5] active:scale-95"
         >
           정산 요청 만들기
         </Link>
