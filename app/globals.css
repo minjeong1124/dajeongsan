@@ -5,6 +5,11 @@
     "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
 }
 
+/* 라이트 전용 앱 — 시스템 다크모드/시크릿 창에서도 폼 요소가 라이트로 렌더되도록 고정 */
+:root {
+  color-scheme: light;
+}
+
 body {
   font-family: var(--font-sans);
   /* 한국어 어절 단위 줄바꿈 — 단어(예: "민망하고")가 중간에 끊기지 않게 */
